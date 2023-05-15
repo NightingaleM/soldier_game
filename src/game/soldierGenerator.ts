@@ -43,6 +43,10 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
   if (item.type === type && item.unlockLevel <= level) return item;
 };
 
+const COST_INCREMENT_RATIO = 1.2
+
+
+
 export class SoldierGenerator {
   G; // 全局游戏实例
   active: boolean = false;
@@ -204,10 +208,10 @@ export class SoldierGenerator {
     this.atk += n;
     this.atk_level += 1;
     if (this.atk_level === 50) {
-      this.atk = this.atk * 2; // 攻击力升级到50级时，当前攻击力翻倍
+      this.atk = this.atk * 2n; // 攻击力升级到50级时，当前攻击力翻倍
     }
     if (this.atk_level === 100) {
-      this.atk = this.atk * 5; // 攻击力升级到100级时，当前攻击力翻 5 倍
+      this.atk = this.atk * 5n; // 攻击力升级到100级时，当前攻击力翻 5 倍
     }
     this.skills.forEach((item) => {
       // if (item.type === 'after_upload_atk' && item.unlockLevel <= this.level()) item.effect(this)

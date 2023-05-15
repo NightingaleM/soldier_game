@@ -6,7 +6,7 @@ import {JSON_with_bigInt} from '@/game/unit';
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
   gold: GoldTargetInterface = {
-    sum: 20000n, // 金币数
+    sum: 20000000n, // 金币数
     addMultiple: 100n, // 增长倍率（%），默认为 100 指 100%
     cutMultiple: 100n, // 减少时倍率（%），默认为 100 指 100%
   };
@@ -105,7 +105,18 @@ export class G {
       spd_increment: [20, 10, 5],
       skills: [SKILL_BOOK['teachOtherAtk'](this)]
     }));
-
+    this.s_list.push(new SoldierGenerator({
+      G: this.REF_G,
+      GoldTarget: this.gold,
+      cost: 100000n,
+      name: 'DJ',
+      intro: '天天打碟，烦不烦啊？',
+      atk: 100n,
+      atk_increment: [198n, 436n, 896n],
+      spd: 2000,
+      spd_increment: [13, 8, 5],
+      skills: [SKILL_BOOK['ferment'](this),SKILL_BOOK['fakeDJ'](this)]
+    }));
   }
 
   addGold(num: bigint) {

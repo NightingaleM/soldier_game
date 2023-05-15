@@ -1,10 +1,10 @@
 <template>
 
   <div class="head">
-    <span class="gold">金币: {{ g.gold.sum }}</span>
+    <span class="gold">金币: {{ g.gold.sum.toLocaleString() }}</span>
     <span>x {{ g.gold.addMultiple }}%</span>
   </div>
-  <h4>HP: {{ g.target().hp }}</h4>
+  <h4>HP: {{ g.target().hp.toLocaleString() }}</h4>
 
   <ul>
     <li v-for="(item,key) in g.s_list" :class="[{active: item.active}]">

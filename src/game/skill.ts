@@ -67,5 +67,32 @@ export const SKILL_BOOK: {
 
       }
     };
+  },
+  ferment: (G: G) => {
+    return {
+      id: 'ferment',
+      unlockLevel: 5,
+      name: '酝酿',
+      intro: '攻击完一次后，需要回味和学习。每次攻击有概率增加5%攻击力，同时增加5%的攻击间隔',
+      type: 'before_atk',
+      effect: (S: SoldierGenerator) => {
+        if (Math.random() > 0.5) {
+          S.atk += (S.atk * 5n / 100n);
+          S.spd += parseInt(`${S.spd * 5 / 100}`);
+        }
+      }
+    };
+  },
+  fakeDJ: (G: G) => {
+    return {
+      id: 'fakeDJ',
+      unlockLevel: 5,
+      name: '打碟咯',
+      intro: '带节奏，隔不久就要带次节奏，一天天叭叭哒哒的。每次攻击，额外造成 攻击力 * 攻击间隔的伤害。',
+      type: 'before_atk',
+      effect: (S: SoldierGenerator) => {
+        return S.atk * BigInt(S.spd) / 1000n;
+      }
+    };
   }
 };
