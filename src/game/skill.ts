@@ -27,7 +27,7 @@ export const SKILL_BOOK: {
       unlockLevel: 10,
       name: '额外攻击',
       intro: '升级攻击时额外获得0.6~1.6倍攻击。',
-      type: 'before_upload_atk',
+      type: 'before_upgrade_atk',
       effect: (S: SoldierGenerator) => {
         return getRandomArbitrary(0.6, 2) * S.getCurrentATKIncrement();
 
@@ -40,7 +40,7 @@ export const SKILL_BOOK: {
       unlockLevel: 50,
       name: '老师傅的教导',
       intro: '每次升级攻击，给其他已雇佣士兵额外增长老司机总攻击的百分之一。',
-      type: 'after_upload_atk',
+      type: 'after_upgrade_atk',
       effect: (S: SoldierGenerator) => {
         G.getActiveSoldier().forEach(item => {
           item.atk += S.atk / 100n;
@@ -74,9 +74,10 @@ export const SKILL_BOOK: {
       unlockLevel: 5,
       name: '酝酿',
       intro: '攻击完一次后，需要回味和学习。每次攻击有概率增加5%攻击力，同时增加5%的攻击间隔',
+      // TODO: 攻击间隔越长，触发概率越大，攻击间隔超过 100s后，无限接近 90%概率
       type: 'before_atk',
       effect: (S: SoldierGenerator) => {
-        if (Math.random() > 0.5) {
+        if (Math.random() > 0.9) {
           S.atk += (S.atk * 5n / 100n);
           S.spd += parseInt(`${S.spd * 5 / 100}`);
         }
@@ -94,5 +95,52 @@ export const SKILL_BOOK: {
         return S.atk * BigInt(S.spd) / 1000n;
       }
     };
+  },
+  equalityWord: (G: G) => {
+    return {
+      id: 'equalityWord',
+      unlockLevel: 26,
+      name: '共同成长',
+      intro: '领袖带领队员们一起成长。每次攻击将几率扣除 1/激活英雄数量 的总金币，将所有已激活英雄的某个属性提升一级。',
+      // DOC: 如果攻击等级越高，则升级攻击等级，反之亦然。
+      // 若攻击等级和攻速等级相等，则触发概率降低，但若触发，则同时升级攻击等级和攻速等级
+      // 该技能触发的升级可以正常触发各自英雄升级时触发的技能，同时也会提高主动升级时的花费
+      type: 'after_atk',
+      effect: (S: SoldierGenerator) => {
+        if (Math.random() < 0.2 && Math.random() > 0.8) { // 4%
+          let s = G.getActiveSoldier();
+          G.gold.sum = G.gold.sum * (BigInt(s.length) - 1n) / BigInt(s.length);
+          let {atk_level, spd_level} = S;
+          if (atk_level === spd_level && Math.random() < 0.4) {  // 1.6%
+            s.forEach(item => {
+              item.UPGRADE_ATK(true);
+              item.UPGRADE_SPD(true);
+            });
+          } else {
+            let type = atk_level > spd_level ? 'ATK' : 'SPD';
+            s.forEach(item => {
+              item[`UPGRADE_${type}`](true);
+            });
+
+          }
+        }
+      }
+    };
+  },
+  commonProsperity:(G:G)=>{
+    return {
+      id: 'commonProsperity',
+      unlockLevel: 10,
+      name: '共同富裕',
+      intro: '领袖带领队员们一同富裕。提升 攻击力等级相关的金币获取效率，降低攻速等级相关的金币花费',
+      type: 'after_upgrade',
+      effect: (S: SoldierGenerator) => {
+        G.gold.addMultiples['commonProsperity'] =  BigInt(S.atk_level)
+        G.gold.cutMultiples['commonProsperity'] =  BigInt(S.spd_level)
+      }
+    }
+
   }
+
+
 };

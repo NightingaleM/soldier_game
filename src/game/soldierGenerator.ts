@@ -8,34 +8,7 @@
 
 import {SKILL_BOOK} from '@/game/skill';
 import {JSON_with_bigInt} from '@/game/unit';
-
-export interface SKILL {
-  id: string,
-  unlockLevel: number,
-  name: string,
-  intro: string,
-  type: 'before_atk' | 'before_upload_atk' | 'before_upload_spd' | 'after_upload_atk',
-  effect: any
-}
-
-export interface GoldTargetInterface {
-  sum: bigint,
-  addMultiple: bigint
-  cutMultiple: bigint
-}
-
-export interface SoldierInterface {
-  G: object, // 全局游戏实例
-  name: string, // 名称
-  intro: string, // 简介
-  atk: bigint, // 当前攻击力
-  atk_increment: any, // 攻击力增长，是个数组，不同阶段有不同的增长率
-  spd: number, // 攻击频率，单位为毫秒
-  spd_increment: any, // 速度增长，如攻击力增长
-  cost: bigint, // 花费，购买时需要的金币，同时也是升级时所需花费，会逐步增长
-  skills?: SKILL[] // 技能李彪
-  GoldTarget: GoldTargetInterface // 全局的金币对象
-}
+import {GoldTargetInterface, SKILL, SoldierInterface} from '@/game/game';
 
 
 const checkActiveSkill = (item: SKILL, type: string, level: number) => {
@@ -43,8 +16,9 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
   if (item.type === type && item.unlockLevel <= level) return item;
 };
 
-const COST_INCREMENT_RATIO = 1.2
-
+const COST_INCREMENT_RATIO = 1.2;
+const OFFLINE_INCOME_RATIO = 0.2;
+export const GOLD_CUT_MULTIPLE_NUMERATOR = 2000000n;
 
 
 export class SoldierGenerator {
@@ -60,7 +34,6 @@ export class SoldierGenerator {
   atk_level = 1;
   spd_level = 1;
   atk_timer: any = null;
-  TARGET: any;
   GoldTarget: GoldTargetInterface;
   finally_dmg_list: { t: number, dmg: bigint }[] = [];
   ms: bigint = 0n;
@@ -103,7 +76,7 @@ export class SoldierGenerator {
     }
   }
 
-  INIT(data: object) {
+  INIT(data: object) { // 初始化数据，可能是保存的数据，也可以是新角色新数据
     const {
       name, intro, atk, spd, cost, skills, atk_increment, spd_increment,
       atk_level, spd_level, atk_timer, active
@@ -122,46 +95,78 @@ export class SoldierGenerator {
     this.atk_timer = atk_timer ?? null;
 
     this.active = active ?? false;
-    if (active) {
-      this.ATK(this.G.boss_list[this.G.currentBossIndex]);
+  }
+
+
+  CALC_OFFLINE_INCOME() {
+    if (!this.G.time) return;
+    if (!this.active) return;
+    let time = new Date().getTime();
+    let gap = time - this.G.time;
+    if (gap > 10000) { // 离线至少30秒才开始计算离线收益
+      const {spd} = this;
+      let times = Math.ceil((gap / spd) * OFFLINE_INCOME_RATIO); // 离线收益需要乘以一个系数，TODO：后续提供提高离线收益途径
+      console.log(`${this.name} - 计算离线收益中…… - 离线时长 ${gap / (1000 * 60)}分钟 - 预计可攻击${times}次`);
+      while (times) {
+        this.ATK_IMMEDIATELY();
+        times--;
+      }
     }
   }
+
 
   level() {
     return this.spd_level + this.atk_level;
   }
 
-  ATK(target: any) {
+  TARGET() {
+    return this.G.boss_list[this.G.currentBossIndex];
+  }
+
+  UNLOCK() {
+    if (this.GoldTarget.sum * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple()) / 1000n < this.cost) {
+      // TODO: 需要弹出提醒金币不够
+      return false;
+    }
+    this.SET_GOLD(this.cost * -1n);
+    this.ATK();
+  }
+
+
+  ATK() {
     this.active = true;
-    this.TARGET = target;
     this.ATK_NEXT();
+  }
+
+  ATK_IMMEDIATELY() {
+    let res = this.atk;
+    this.skills.forEach((item) => {
+      // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
+      res += checkActiveSkill(item, 'before_atk', this.level())?.effect(this) ?? 0n;
+    });
+    this.SET_FinallyDmg(res);
+    // @ts-ignore
+    this.TARGET().hp -= res;
+    // 攻击后获取金币
+    this.SET_GOLD(res);
+
+    // 攻击后触发的技能（效果）
+    this.skills.forEach((item) => {
+      // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
+      res += checkActiveSkill(item, 'after_atk', this.level())?.effect(this) ?? 0n;
+    });
   }
 
   ATK_NEXT() {
     this.atk_timer = setTimeout(() => {
-      let res = this.atk;
-      this.skills.forEach((item) => {
-        // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
-        res += checkActiveSkill(item, 'before_atk', this.level())?.effect(this) ?? 0n;
-      });
-      this.SET_FinallyDmg(res);
-      // @ts-ignore
-      this.TARGET.hp -= res;
-      // 攻击后获取金币
-      this.SET_GOLD(res);
-
-      // 攻击后触发的技能（效果）
-      this.skills.forEach((item) => {
-        // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
-        res += checkActiveSkill(item, 'after_atk', this.level())?.effect(this) ?? 0n;
-      });
+      this.ATK_IMMEDIATELY();
       this.ATK_NEXT();
     }, this.spd);
   }
 
   SET_GOLD(num: bigint) {
-    const n = num > 0n ? num * (this.GoldTarget.addMultiple / 100n)
-      : num * (this.GoldTarget.cutMultiple / 100n);
+    const n = num > 0n ? num * (this.GoldTarget.getAddMultiple() / 100n)
+      : num * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple()) / 1000n;
     this.GoldTarget.sum += n;
   }
 
@@ -189,21 +194,21 @@ export class SoldierGenerator {
     return l > 50 ? l > 100 ? this[`atk_increment`][2] : this[`atk_increment`][1] : this[`atk_increment`][0];
   }
 
-  UPGRADE_ATK = () => {
+  // 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+  UPGRADE_ATK = (withOutCost: boolean = false) => {
     if (!this.active) {
       throw new Error('no active ,cannot UPGRADE !');
       return;
     }
-    if ((this.GoldTarget.sum * this.GoldTarget.cutMultiple / 100n) < this.cost) {
+    if (!withOutCost && (this.GoldTarget.sum * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple())) / 1000n < this.cost) {
       // TODO: 需要弹出提醒金币不够
       return;
     }
-    this.SET_GOLD(this.cost * -1n);
+    if (!withOutCost) this.SET_GOLD(this.cost * -1n);
     this.cost = this.cost * BigInt(`${1000 + this.level()}`) / 1000n;
     let n = this.getCurrentATKIncrement();
     this.skills.forEach((item) => {
-      // if (item.type === 'before_upload_atk' && item.unlockLevel <= this.level()) n += item.effect(n)
-      n += checkActiveSkill(item, 'before_upload_atk', this.level())?.effect(this) ?? 0n;
+      n += checkActiveSkill(item, 'before_upgrade_atk', this.level())?.effect(this) ?? 0n;
     });
     this.atk += n;
     this.atk_level += 1;
@@ -214,22 +219,24 @@ export class SoldierGenerator {
       this.atk = this.atk * 5n; // 攻击力升级到100级时，当前攻击力翻 5 倍
     }
     this.skills.forEach((item) => {
-      // if (item.type === 'after_upload_atk' && item.unlockLevel <= this.level()) item.effect(this)
-      checkActiveSkill(item, 'after_upload_atk', this.level())?.effect(this);
+      checkActiveSkill(item, 'after_upgrade_atk', this.level())?.effect(this);
     });
-
+    this.skills.forEach((item) => {
+      checkActiveSkill(item, 'after_upgrade', this.level())?.effect(this);
+    });
   };
 
-  UPGRADE_SPD = () => {
+  // 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+  UPGRADE_SPD = (withOutCost: boolean = false) => {
     if (!this.active) {
       throw new Error('no active ,cannot UPGRADE !');
       return;
     }
-    if ((this.GoldTarget.sum * this.GoldTarget.cutMultiple / 100n) < this.cost) {
+    if (!withOutCost && (this.GoldTarget.sum * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple())) / 1000n < this.cost) {
       // TODO: 需要弹出提醒金币不够
       return;
     }
-    this.SET_GOLD(this.cost * -1n); // 扣钱
+    if (!withOutCost) this.SET_GOLD(this.cost * -1n); // 扣钱
     this.cost = this.cost * BigInt(`${1000 + this.level()}`) / 1000n; // 涨价
     let n = this.getCurrentSPDIncrement(); // 查看这次要减少多少攻击间隔
     this.skills.forEach((item) => { // 升级攻击间隔前看有什么技能需要触发
@@ -252,6 +259,9 @@ export class SoldierGenerator {
       n = n / 5n;
       this.atk += n;
     }
+    this.skills.forEach((item) => {
+      checkActiveSkill(item, 'after_upgrade', this.level())?.effect(this);
+    });
   };
 
   CALC_DPS() {

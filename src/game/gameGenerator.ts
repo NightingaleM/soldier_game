@@ -1,14 +1,26 @@
 import {reactive} from 'vue';
-import {GoldTargetInterface, SoldierGenerator} from '@/game/soldierGenerator';
+import {SoldierGenerator} from '@/game/soldierGenerator';
 import {SKILL_BOOK} from '@/game/skill';
 import {JSON_with_bigInt} from '@/game/unit';
+import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/soldiers';
+import {GoldTargetInterface} from '@/game/game';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
   gold: GoldTargetInterface = {
     sum: 20000000n, // 金币数
-    addMultiple: 100n, // 增长倍率（%），默认为 100 指 100%
-    cutMultiple: 100n, // 减少时倍率（%），默认为 100 指 100%
+    getAddMultiple: function () {// 增长倍率（%），默认为 100 指 100%
+      return Object.values(this.addMultiples).reduce((a, b) => {
+        return a + b;
+      });
+    },
+    getCutMultiple: function () {// 减少时倍率, 计算方法为 100n / 总和，
+      return Object.values(this.cutMultiples).reduce((a, b) => {
+        return a + b;
+      }, 0n);
+    },
+    addMultiples: {default: 1000n},
+    cutMultiples: {default: 2000n}
   };
   boss_list: any[] = [
     {
@@ -18,6 +30,7 @@ export class G {
   currentBossIndex: number = 0; // 第几个boss
   s_list: SoldierGenerator[] = [];
   auto_save_timer = null;
+  time: number = 0;
 
   constructor() {
 
@@ -35,11 +48,20 @@ export class G {
     let saveInfo = localStorage.getItem('sg_lsg_s');
     if (!saveInfo) return;
     saveInfo = JSON.parse(saveInfo);
-    const {gold, boss_list, currentBossIndex} = saveInfo;
-    const {sum, addMultiple, cutMultiple} = gold;
+    const {gold, boss_list, currentBossIndex, time} = saveInfo;
+    const {sum, addMultiples, cutMultiples} = gold;
     this.gold.sum = BigInt(sum);
-    this.gold.addMultiple = BigInt(addMultiple);
-    this.gold.cutMultiple = BigInt(cutMultiple);
+    this.gold.addMultiples = {};
+    this.gold.cutMultiples = {};
+    Object.keys(addMultiples).forEach(key => {
+      this.gold.addMultiples[key] = BigInt(addMultiples[key]);
+    });
+    Object.keys(cutMultiples).forEach(key => {
+      this.gold.cutMultiples[key] = BigInt(cutMultiples[key]);
+    });
+
+
+    this.time = time;
     boss_list.forEach((item, index) => {
       this.boss_list[index].hp = BigInt(item.hp);
     });
@@ -47,14 +69,15 @@ export class G {
   }
 
   INIT_GAME() {
-    this.LOAD_SAVE();
-    this.initSoldierList();
+    this.LOAD_SAVE(); // 查看并加载历史数据
+    this.initSoldierList(); // 初始化所有士兵，如果有离线收益，还需要等计算完所有离线收益后再开始攻击。
   }
 
   SAVE_IN_STORAGE() {
-    const {gold, boss_list, currentBossIndex} = this;
+    this.time = new Date().getTime();
+    const {gold, boss_list, currentBossIndex, time} = this;
     localStorage.setItem('sg_lsg_s', JSON_with_bigInt({
-      gold, boss_list, currentBossIndex
+      gold, boss_list, currentBossIndex, time
     }));
   }
 
@@ -69,58 +92,25 @@ export class G {
   }
 
   initSoldierList() {
-    this.s_list.push(new SoldierGenerator({
-      G: this.REF_G,
-      GoldTarget: this.gold,
-      cost: 100n,
-      name: '普幸男',
-      intro: '普通，但是幸运的男人。',
-      atk: 1n,
-      atk_increment: [9n, 36n, 196n],
-      spd: 500,
-      spd_increment: [20, 10, 5],
-      skills: [SKILL_BOOK['exAtk'](this)]
-    }));
-    this.s_list.push(new SoldierGenerator({
-      G: this.REF_G,
-      GoldTarget: this.gold,
-      cost: 1000n,
-      name: '普幸女',
-      intro: '普通，但是幸运的女人。',
-      atk: 1n,
-      atk_increment: [4n, 28n, 96n],
-      spd: 5000,
-      spd_increment: [40, 20, 15],
-      skills: [SKILL_BOOK['allWordAtk'](this)]
-    }));
-    this.s_list.push(new SoldierGenerator({
-      G: this.REF_G,
-      GoldTarget: this.gold,
-      cost: 30000n,
-      name: '老师傅',
-      intro: '知识丰富的老司机，成长到一定阶段愿意向其他士兵倾囊相授。',
-      atk: 1n,
-      atk_increment: [98n, 136n, 296n],
-      spd: 2000,
-      spd_increment: [20, 10, 5],
-      skills: [SKILL_BOOK['teachOtherAtk'](this)]
-    }));
-    this.s_list.push(new SoldierGenerator({
-      G: this.REF_G,
-      GoldTarget: this.gold,
-      cost: 100000n,
-      name: 'DJ',
-      intro: '天天打碟，烦不烦啊？',
-      atk: 100n,
-      atk_increment: [198n, 436n, 896n],
-      spd: 2000,
-      spd_increment: [13, 8, 5],
-      skills: [SKILL_BOOK['ferment'](this),SKILL_BOOK['fakeDJ'](this)]
-    }));
+    this.s_list.push(luckBoy(this.REF_G, this.gold));
+    this.s_list.push(luckGirl(this.REF_G, this.gold));
+    this.s_list.push(oldTeacher(this.REF_G, this.gold));
+    this.s_list.push(fakerJD(this.REF_G, this.gold));
+    this.s_list.push(chief(this.REF_G, this.gold));
+
+
+    this.s_list.forEach(item => {
+      item.CALC_OFFLINE_INCOME();
+    });
+    this.s_list.forEach(item => {
+      if (item.active) {
+        item.ATK();
+      }
+    });
   }
 
   addGold(num: bigint) {
-    this.gold += num;
+    this.gold.sum += num;
   }
 
   target() {
@@ -128,7 +118,7 @@ export class G {
   }
 
   unlockSoldier(soldier: SoldierGenerator) {
-    soldier.ATK(this.target());
+    return soldier.UNLOCK();
   }
 
   getActiveSoldier() {

@@ -2,7 +2,7 @@
 
   <div class="head">
     <span class="gold">金币: {{ g.gold.sum.toLocaleString() }}</span>
-    <span>x {{ g.gold.addMultiple }}%</span>
+    <span>x {{ g.gold.getAddMultiple() }}%</span>
   </div>
   <h4>HP: {{ g.target().hp.toLocaleString() }}</h4>
 
@@ -19,7 +19,8 @@
         <div>
           <p><span>LEVEL: {{ item.spd_level }}</span>SPD: {{ item.spd / 1000 }}s</p>
           <button @click="toUploadSpd(item)">
-            - {{ item.getCurrentSPDIncrement() / 1000 }} s | {{ item.cost }}
+            - {{ item.getCurrentSPDIncrement() / 1000 }} s |
+            {{item.cost}} - {{ item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n }}
           </button>
         </div>
       </template>
@@ -34,7 +35,7 @@
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
 import {getCurrentInstance, reactive, ref} from 'vue';
-import {SoldierGenerator} from '@/game/soldierGenerator';
+import {GOLD_CUT_MULTIPLE_NUMERATOR, SoldierGenerator} from '@/game/soldierGenerator';
 
 const internalInstance = getCurrentInstance();
 // 操作数据后更新视图
