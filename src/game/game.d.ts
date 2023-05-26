@@ -3,7 +3,7 @@ export interface SKILL {
   unlockLevel: number,
   name: string,
   intro: string,
-  type: 'before_atk' | 'before_upgrade_atk' | 'before_upload_spd' | 'after_upgrade_atk',
+  type: 'before_atk' | 'before_upgrade_atk' | 'before_upgrade_spd' | 'after_upgrade_atk',
   effect: any
 }
 

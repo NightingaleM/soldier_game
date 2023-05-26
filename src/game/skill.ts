@@ -127,7 +127,7 @@ export const SKILL_BOOK: {
       }
     };
   },
-  commonProsperity:(G:G)=>{
+  commonProsperity: (G: G) => {
     return {
       id: 'commonProsperity',
       unlockLevel: 10,
@@ -135,12 +135,9 @@ export const SKILL_BOOK: {
       intro: '领袖带领队员们一同富裕。提升 攻击力等级相关的金币获取效率，降低攻速等级相关的金币花费',
       type: 'after_upgrade',
       effect: (S: SoldierGenerator) => {
-        G.gold.addMultiples['commonProsperity'] =  BigInt(S.atk_level)
-        G.gold.cutMultiples['commonProsperity'] =  BigInt(S.spd_level)
+        G.gold.addMultiples['commonProsperity'] = BigInt(S.atk_level);
+        G.gold.cutMultiples['commonProsperity'] = BigInt(S.spd_level);
       }
-    }
-
-  }
-
-
+    };
+  },
 };

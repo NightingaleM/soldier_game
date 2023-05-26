@@ -45,10 +45,14 @@ export class SoldierGenerator {
     this.G = G;
     this.GoldTarget = GoldTarget;
     this.GET_SAVE_FILE(option);
-
     this.CALC_DPS();
   }
 
+  /**
+   * 保存游戏
+   * 获取所有关键数据，json化，保存到localStorage
+   * @constructor
+   */
   SAVE_IN_STORAGE() {
     const {
       name, intro, atk, spd, cost, skills, atk_increment, spd_increment,
@@ -62,6 +66,12 @@ export class SoldierGenerator {
 
   }
 
+  /**
+   * 初始化英雄
+   * 如果有本地数据，则获取本地数据，如果没有本地数据，则使用初始化信息
+   * @param option
+   * @constructor
+   */
   GET_SAVE_FILE(option) {
     let data: string | object = localStorage.getItem(`${this.name}`);
     if (data && typeof data === 'string') {
@@ -76,7 +86,12 @@ export class SoldierGenerator {
     }
   }
 
-  INIT(data: object) { // 初始化数据，可能是保存的数据，也可以是新角色新数据
+  /**
+   * 初始化数据，可能是保存的数据，也可以是新角色新数据
+   * @param data
+   * @constructor
+   */
+  INIT(data: object) {
     const {
       name, intro, atk, spd, cost, skills, atk_increment, spd_increment,
       atk_level, spd_level, atk_timer, active
@@ -98,6 +113,12 @@ export class SoldierGenerator {
   }
 
 
+  /**
+   * 计算离线收益
+   * 至少离线30秒才计算离线收益
+   * 离线收益有最长离线收益时间，可以有不同的途径来提高这个离线收益时间
+   * @constructor
+   */
   CALC_OFFLINE_INCOME() {
     if (!this.G.time) return;
     if (!this.active) return;
@@ -120,7 +141,7 @@ export class SoldierGenerator {
   }
 
   TARGET() {
-    return this.G.boss_list[this.G.currentBossIndex];
+    return this.G.boss_list[this.G.current_boss_index];
   }
 
   UNLOCK() {
@@ -165,8 +186,20 @@ export class SoldierGenerator {
   }
 
   SET_GOLD(num: bigint) {
-    const n = num > 0n ? num * (this.GoldTarget.getAddMultiple() / 100n)
-      : num * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple()) / 1000n;
+    let res: bigint = 0n;
+    if (num > 0n) {
+      this.skills.forEach(item => {
+        res += checkActiveSkill(item, 'before_append_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
+      });
+    } else if (num < 0n) {
+      this.skills.forEach(item => {
+        res += checkActiveSkill(item, 'before_invest_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
+      });
+    }
+    let n = num + res;
+    n = n > 0n ? n * (this.GoldTarget.getAddMultiple() / 100n)
+      : n * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple()) / 1000n;
+
     this.GoldTarget.sum += n;
   }
 
@@ -240,13 +273,19 @@ export class SoldierGenerator {
     this.cost = this.cost * BigInt(`${1000 + this.level()}`) / 1000n; // 涨价
     let n = this.getCurrentSPDIncrement(); // 查看这次要减少多少攻击间隔
     this.skills.forEach((item) => { // 升级攻击间隔前看有什么技能需要触发
-      // if (item.type === 'before_upload_spd' && item.unlockLevel <= this.level()) n += item.effect(n)
-      n += checkActiveSkill(item, 'before_upload_spd', this.level())?.effect(this) ?? 0;
+      n += checkActiveSkill(item, 'before_upgrade_spd', this.level())?.effect(this) ?? 0;
+    });
+    this.G.memento_list.before_upgrade_spd.filter(item => item.num > 0).forEach(memento => {
+      n += memento.effect({S: this, G: this.G});
     });
     // 看降低后的攻击间隔是否小于 20ms，如果小于，则最低给与 20ms 的攻击间隔
     const res = this.spd - n;
-    this.spd = res < 20 ? 20 : res;
+
+    let maxSpd = 220
+    maxSpd += this.G.memento_list.swift_gloves.effect()
+    this.spd = res < maxSpd ? maxSpd : res;
     this.spd_level += 1;
+
     // 精修攻击速度，打出去的伤害怎么的也会变高吧？
     // 攻速50后，每次升级提升对应攻击增长0.1的攻击力,这种增加不会触发升级攻击力相关技能
     if (this.spd_level > 50) {

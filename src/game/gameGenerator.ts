@@ -4,6 +4,7 @@ import {SKILL_BOOK} from '@/game/skill';
 import {JSON_with_bigInt} from '@/game/unit';
 import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/soldiers';
 import {GoldTargetInterface} from '@/game/game';
+import {Mementos} from '@/game/memento';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
@@ -27,7 +28,16 @@ export class G {
       hp: 1000000000000000n
     }
   ];
-  currentBossIndex: number = 0; // 第几个boss
+  OFFLINE_INCOME_RATIO: number = 0.;
+  memento_list = {
+    before_upgrade_spd: [],
+    before_upgrade_atk: [],
+    before_append_gold: [],
+    before_invest_gold: [],
+    before_atk: [],
+    after_atk: [],
+  };
+  current_boss_index: number = 0; // 第几个boss
   s_list: SoldierGenerator[] = [];
   auto_save_timer = null;
   time: number = 0;
@@ -48,7 +58,7 @@ export class G {
     let saveInfo = localStorage.getItem('sg_lsg_s');
     if (!saveInfo) return;
     saveInfo = JSON.parse(saveInfo);
-    const {gold, boss_list, currentBossIndex, time} = saveInfo;
+    const {gold, boss_list, current_boss_index, time} = saveInfo;
     const {sum, addMultiples, cutMultiples} = gold;
     this.gold.sum = BigInt(sum);
     this.gold.addMultiples = {};
@@ -65,19 +75,54 @@ export class G {
     boss_list.forEach((item, index) => {
       this.boss_list[index].hp = BigInt(item.hp);
     });
-    this.currentBossIndex = currentBossIndex;
+    this.current_boss_index = current_boss_index;
   }
 
   INIT_GAME() {
+
+    this.LOAD_MEMENTO(); // 加载遗物数据，遗物数据的历史数据加载将在这里完成
+
     this.LOAD_SAVE(); // 查看并加载历史数据
+
+
     this.initSoldierList(); // 初始化所有士兵，如果有离线收益，还需要等计算完所有离线收益后再开始攻击。
+  }
+
+  LOAD_MEMENTO() {
+    let saveInfo = localStorage.getItem('sg_lsg_s');
+    let mementos;
+    if (saveInfo) {
+      // 查看是否有遗物保存信息
+      mementos = JSON.parse(saveInfo).mementos;
+    }
+    Object.keys(Mementos).forEach(key => {
+      const item = Mementos[key];
+      const memory = mementos?.[key] ?? 0;
+      item.num = memory;
+      if (item.type === 'unique') { // 如果是独特遗物则直接放在memento_list第一层
+        this.memento_list[key] = item;
+      } else {
+        if (!this.memento_list[item.type]) {
+          this.memento_list[item.type] = [];
+        }
+        this.memento_list[item.type].push(item);
+      }
+    });
+
   }
 
   SAVE_IN_STORAGE() {
     this.time = new Date().getTime();
-    const {gold, boss_list, currentBossIndex, time} = this;
+
+    // 保存遗物信息，只需要保存数量 num 即可
+    const mementos = {};
+    Object.keys(Mementos).forEach(key => {
+      mementos[key] = Mementos[key].num;
+    });
+
+    const {gold, boss_list, current_boss_index, time} = this;
     localStorage.setItem('sg_lsg_s', JSON_with_bigInt({
-      gold, boss_list, currentBossIndex, time
+      gold, boss_list, current_boss_index, time, mementos
     }));
   }
 
@@ -114,7 +159,7 @@ export class G {
   }
 
   target() {
-    return this.boss_list[this.currentBossIndex];
+    return this.boss_list[this.current_boss_index];
   }
 
   unlockSoldier(soldier: SoldierGenerator) {
