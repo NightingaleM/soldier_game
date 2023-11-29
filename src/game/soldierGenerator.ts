@@ -281,8 +281,8 @@ export class SoldierGenerator {
     // 看降低后的攻击间隔是否小于 20ms，如果小于，则最低给与 20ms 的攻击间隔
     const res = this.spd - n;
 
-    let maxSpd = 220
-    maxSpd += this.G.memento_list.swift_gloves.effect()
+    let maxSpd = 220;
+    maxSpd += this.G.memento_list.swift_gloves.effect({S: this, G: this.G});
     this.spd = res < maxSpd ? maxSpd : res;
     this.spd_level += 1;
 
