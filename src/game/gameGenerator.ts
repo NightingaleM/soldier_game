@@ -15,13 +15,16 @@ export class G {
         return a + b;
       });
     },
-    getCutMultiple: function () {// 减少时倍率, 计算方法为 100n / 总和，
+    // 优惠属性总额， 实际优惠率为  (GOLD_CUT_MULTIPLE_NUMERATOR/总额)/1000n
+    getCutMultiple: function () {
       return Object.values(this.cutMultiples).reduce((a, b) => {
         return a + b;
       }, 0n);
     },
+    // 增长倍率存储，default 为默认倍率，其他为遗物、技能等增加的倍率
     addMultiples: {default: 100n},
-    cutMultiples: {default: 200n}
+    //
+    cutMultiples: {default: 10000n}
   };
   boss_list: any[] = [
     {
@@ -97,8 +100,7 @@ export class G {
     }
     Object.keys(Mementos).forEach(key => {
       const item = Mementos[key];
-      const memory = mementos?.[key] ?? 0;
-      item.num = memory;
+      item.num = mementos?.[key] ?? 0;
       if (item.type === 'unique') { // 如果是独特遗物则直接放在memento_list第一层
         this.memento_list[key] = item;
       } else {

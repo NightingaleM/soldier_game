@@ -17,26 +17,35 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
 };
 
 const COST_INCREMENT_RATIO = 1.2;
+// 离线收益系数
 const OFFLINE_INCOME_RATIO = 0.2;
-export const GOLD_CUT_MULTIPLE_NUMERATOR = 2000000n;
+export const GOLD_CUT_MULTIPLE_NUMERATOR = 10000000n;
 
 
 export class SoldierGenerator {
-  G; // 全局游戏实例
+  // 全局游戏实例
+  G;
   active: boolean = false;
   name;
   intro;
   atk;
   spd;
   skills: SKILL[] = [];
+  // 攻击增长量，是个数组，不同阶段有不同的增长率
   atk_increment;
+  // 速度增长量，如攻击力增长
   spd_increment;
   atk_level = 1;
   spd_level = 1;
+  // 攻击间隔计时器
   atk_timer: any = null;
+  // 全局金币对象
   GoldTarget: GoldTargetInterface;
+  // 伤害缓存（用于计算DPS）
   finally_dmg_list: { t: number, dmg: bigint }[] = [];
-  ms: bigint = 0n;
+  // DPS
+  DPS: bigint = 0n;
+  // 当前花费
   cost: bigint;
 
   constructor(option: SoldierInterface) {
@@ -76,8 +85,11 @@ export class SoldierGenerator {
     let data: string | object = localStorage.getItem(`${this.name}`);
     if (data && typeof data === 'string') {
       data = JSON.parse(data);
+      // @ts-ignore
       data.skills = [];
+      // @ts-ignore
       data.skillId.forEach(id => {
+      // @ts-ignore
         data.skills.push(SKILL_BOOK[id](this.G));
       });
       this.INIT(data);
@@ -162,7 +174,7 @@ export class SoldierGenerator {
   ATK_IMMEDIATELY() {
     let res = this.atk;
     this.skills.forEach((item) => {
-      // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
+      // 检查攻击前触发的技能，并执行技能效果，将技能结果加到攻击力上
       res += checkActiveSkill(item, 'before_atk', this.level())?.effect(this) ?? 0n;
     });
     this.SET_FinallyDmg(res);
@@ -185,6 +197,13 @@ export class SoldierGenerator {
     }, this.spd);
   }
 
+  /**
+   * 设置金币，
+   * 接受一个bigint类型的数字，正数为增加，负数为减少
+   * 会触发before_append_gold 和 before_invest_gold技能，技能结果将直接加到num上
+   * @param num
+   * @constructor
+   */
   SET_GOLD(num: bigint) {
     let res: bigint = 0n;
     if (num > 0n) {
@@ -227,7 +246,12 @@ export class SoldierGenerator {
     return l > 50 ? l > 100 ? this[`atk_increment`][2] : this[`atk_increment`][1] : this[`atk_increment`][0];
   }
 
-  // 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+  /**
+   * 升级攻击力
+   * 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+   * @param withOutCost
+   * @constructor
+   */
   UPGRADE_ATK = (withOutCost: boolean = false) => {
     if (!this.active) {
       throw new Error('no active ,cannot UPGRADE !');
@@ -242,6 +266,10 @@ export class SoldierGenerator {
     let n = this.getCurrentATKIncrement();
     this.skills.forEach((item) => {
       n += checkActiveSkill(item, 'before_upgrade_atk', this.level())?.effect(this) ?? 0n;
+    });
+    // 升级攻击力前 查看有什么遗物需要触发
+    this.G.memento_list.before_upgrade_atk.filter(item => item.num > 0).forEach(memento => {
+      n += memento.effect({S: this, G: this.G});
     });
     this.atk += n;
     this.atk_level += 1;
@@ -259,10 +287,15 @@ export class SoldierGenerator {
     });
   };
 
-  // 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+  /**
+   * 升级攻击速度
+   * 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
+   * @param withOutCost
+   * @constructor
+   */
   UPGRADE_SPD = (withOutCost: boolean = false) => {
     if (!this.active) {
-      throw new Error('no active ,cannot UPGRADE !');
+      throw new Error('not active ,cannot UPGRADE !');
       return;
     }
     if (!withOutCost && (this.GoldTarget.sum * (GOLD_CUT_MULTIPLE_NUMERATOR / this.GoldTarget.getCutMultiple())) / 1000n < this.cost) {
@@ -275,13 +308,14 @@ export class SoldierGenerator {
     this.skills.forEach((item) => { // 升级攻击间隔前看有什么技能需要触发
       n += checkActiveSkill(item, 'before_upgrade_spd', this.level())?.effect(this) ?? 0;
     });
+    // 升级攻击间隔前 查看有什么遗物需要触发
     this.G.memento_list.before_upgrade_spd.filter(item => item.num > 0).forEach(memento => {
       n += memento.effect({S: this, G: this.G});
     });
-    // 看降低后的攻击间隔是否小于 20ms，如果小于，则最低给与 20ms 的攻击间隔
+    // 看降低后的攻击间隔是否小于 最小允许的攻击间隔，如果小于，则最低给与 允许的最小 的攻击间隔
     const res = this.spd - n;
-
     let maxSpd = 220;
+    // 查看有没有攻击间隔相关遗物，如果有，则提高最大攻击间隔
     maxSpd += this.G.memento_list.swift_gloves.effect({S: this, G: this.G});
     this.spd = res < maxSpd ? maxSpd : res;
     this.spd_level += 1;
@@ -307,7 +341,7 @@ export class SoldierGenerator {
     setInterval(() => {
       const l = this.finally_dmg_list.length;
       const sum = this.finally_dmg_list.reduce((pre, cur, i) => pre + cur.dmg, 0n);
-      this.ms = sum / 10n;
+      this.DPS = sum / 10n;
     }, 1000);
   }
 
