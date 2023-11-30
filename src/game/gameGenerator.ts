@@ -9,7 +9,7 @@ import {Mementos} from '@/game/memento';
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
   gold: GoldTargetInterface = {
-    sum: 20000000n, // 金币数
+    sum: 2000n, // 金币数
     getAddMultiple: function () {// 增长倍率（%），默认为 100 指 100%
       return Object.values(this.addMultiples).reduce((a, b) => {
         return a + b;
@@ -20,8 +20,8 @@ export class G {
         return a + b;
       }, 0n);
     },
-    addMultiples: {default: 1000n},
-    cutMultiples: {default: 2000n}
+    addMultiples: {default: 100n},
+    cutMultiples: {default: 200n}
   };
   boss_list: any[] = [
     {
