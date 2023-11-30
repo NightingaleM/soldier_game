@@ -3,7 +3,7 @@ import {SoldierGenerator} from '@/game/soldierGenerator';
 import {SKILL_BOOK} from '@/game/skill';
 import {JSON_with_bigInt} from '@/game/unit';
 import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/soldiers';
-import {GoldTargetInterface} from '@/game/game';
+import {GoldTargetInterface} from '@/game/game.d.ts';
 import {Mementos} from '@/game/memento';
 
 export class G {

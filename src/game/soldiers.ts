@@ -1,7 +1,7 @@
 import {SoldierGenerator} from '@/game/soldierGenerator';
 import {SKILL_BOOK} from '@/game/skill';
 import {G} from '@/game/gameGenerator';
-import {GoldTargetInterface} from '@/game/game';
+import {GoldTargetInterface} from '@/game/game.d.ts';
 
 export const luckBoy = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
   G: REF_G,

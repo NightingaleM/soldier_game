@@ -8,7 +8,7 @@
 
 import {SKILL_BOOK} from '@/game/skill';
 import {JSON_with_bigInt} from '@/game/unit';
-import {GoldTargetInterface, SKILL, SoldierInterface} from '@/game/game';
+import {GoldTargetInterface, SKILL, SoldierInterface} from '@/game/game.d.ts';
 
 
 const checkActiveSkill = (item: SKILL, type: string, level: number) => {
