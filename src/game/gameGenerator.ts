@@ -32,21 +32,17 @@ export class G {
     }
   ];
   offline_income = {
-    //离线收益，默认 3%
-    incomeMultiples: {
-      default: 3
+    getOfflineIncome: () => {
+      // 默认 0.3 的离线加成，外加遗物加成
+      // @ts-ignore
+      return (0.3 + this.memento_list?.time_gloves.effect() ?? 0);
     },
-    // 最长离线时间 单位 秒
-    maxTime:{
-      default: 4 * 60 * 60 // 默认最长离线时间为 4小时
-    },
-    getOfflineIncome: function () {
-      return (Object.values(this.incomeMultiples).reduce((a, b) => a + b) / 100).toFixed(2);
-    },
-    getMaxTime: function () {
-      return (Object.values(this.maxTime).reduce((a, b) => a + b) / 100).toFixed(2);
+    getMaxTime: () => {
+      // @ts-ignore
+      return (2 * 60 * 60 + this.memento_list?.time_ship.effect() ?? 0) * 1000;
     }
   };
+
   memento_list = {
     before_upgrade_spd: [],
     before_upgrade_atk: [],
@@ -139,7 +135,7 @@ export class G {
 
     const {gold, boss_list, current_boss_index, time} = this;
     localStorage.setItem('sg_lsg_s', JSON_with_bigInt({
-      gold, boss_list, current_boss_index, time, mementos
+      gold, boss_list, current_boss_index, time, mementos,
     }));
   }
 

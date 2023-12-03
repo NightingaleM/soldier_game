@@ -24,9 +24,26 @@ export const Mementos = {
       return S.getCurrentSPDIncrement() * this.num / 100;
     }
   },
-
-
-
+  time_ship: {
+    name: '时间穿梭引擎',
+    intro: '可以在时间河流中畅游,每拥有一个可以多结算3分钟离线奖励',
+    type: 'unique',
+    num: 0,
+    max: 200,
+    effect: function (): number {
+      return this.num * 3 * 60;
+    }
+  },
+  time_gloves: {
+    name: '时间手套',
+    intro: '可以在时间河流中捞点东西，每拥有一个可以提高2%的离线奖励',
+    type: 'unique',
+    num: 0,
+    max: 500,
+    effect: function (): number {
+      return +(this.num * 2 / 100).toFixed(4);
+    }
+  },
 
 
 };
