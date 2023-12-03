@@ -17,8 +17,8 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
 };
 
 const COST_INCREMENT_RATIO = 1.2;
-// 离线收益系数
-const OFFLINE_INCOME_RATIO = 0.2;
+// 计算扣款优惠时的分子，如 G.gold.``getCutMultiple() 为 1000n , 则优惠金额为 (10000000n / 10000n) / 1000n = 100%
+// 通过其他途径 增大 G.gold.getCutMultiple() 的返回值，则可以提高扣款优惠，如 (10000000n / 10500n) / 1000n = 95.2%
 export const GOLD_CUT_MULTIPLE_NUMERATOR = 10000000n;
 
 
@@ -89,7 +89,7 @@ export class SoldierGenerator {
       data.skills = [];
       // @ts-ignore
       data.skillId.forEach(id => {
-      // @ts-ignore
+        // @ts-ignore
         data.skills.push(SKILL_BOOK[id](this.G));
       });
       this.INIT(data);
@@ -136,9 +136,10 @@ export class SoldierGenerator {
     if (!this.active) return;
     let time = new Date().getTime();
     let gap = time - this.G.time;
-    if (gap > 10000) { // 离线至少30秒才开始计算离线收益
+    gap = gap > this.G.offline_income.getMaxTime() ? this.G.offline_income.getMaxTime() : gap;
+    if (gap > (30 * 1000)) { // 离线至少30秒才开始计算离线收益
       const {spd} = this;
-      let times = Math.ceil((gap / spd) * OFFLINE_INCOME_RATIO); // 离线收益需要乘以一个系数，TODO：后续提供提高离线收益途径
+      let times = Math.ceil((gap / spd) * this.G.offline_income.getOfflineIncome()); // 离线收益需要乘以一个系数，TODO：后续提供提高离线收益途径
       console.log(`${this.name} - 计算离线收益中…… - 离线时长 ${gap / (1000 * 60)}分钟 - 预计可攻击${times}次`);
       while (times) {
         this.ATK_IMMEDIATELY();

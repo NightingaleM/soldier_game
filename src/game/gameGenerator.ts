@@ -31,7 +31,22 @@ export class G {
       hp: 1000000000000000n
     }
   ];
-  OFFLINE_INCOME_RATIO: number = 0.;
+  offline_income = {
+    //离线收益，默认 3%
+    incomeMultiples: {
+      default: 3
+    },
+    // 最长离线时间 单位 秒
+    maxTime:{
+      default: 4 * 60 * 60 // 默认最长离线时间为 4小时
+    },
+    getOfflineIncome: function () {
+      return (Object.values(this.incomeMultiples).reduce((a, b) => a + b) / 100).toFixed(2);
+    },
+    getMaxTime: function () {
+      return (Object.values(this.maxTime).reduce((a, b) => a + b) / 100).toFixed(2);
+    }
+  };
   memento_list = {
     before_upgrade_spd: [],
     before_upgrade_atk: [],
