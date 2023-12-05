@@ -24,11 +24,11 @@ export class G {
     // 增长倍率存储，default 为默认倍率，其他为遗物、技能等增加的倍率
     addMultiples: {default: 100n},
     //
-    cutMultiples: {default: 10000n}
+    cutMultiples: {default: 10100n}
   };
   boss_list: any[] = [
     {
-      hp: 1000000000000000n
+      hp: 1000000000000000000n
     }
   ];
   offline_income = {

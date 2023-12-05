@@ -65,6 +65,7 @@
   position: relative;
   font-weight: normal;
   padding: 0;
+  user-select: none;
 }
 
 html {

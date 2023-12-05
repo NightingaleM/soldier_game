@@ -6,7 +6,7 @@ import HelloWorld from './components/HelloWorld.vue';
 <template>
 
   <header>
-    <RouterLink to="/calculateTest">calculateTest</RouterLink>
+<!--    <RouterLink to="/calculateTest">calculateTest</RouterLink>-->
   </header>
   <div class="main">
     <RouterView/>

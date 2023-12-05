@@ -4,6 +4,8 @@ import TheWelcome from '../components/TheWelcome.vue'
 
 <template>
   <main>
-    <TheWelcome />
+    <RouterLink to="/calculateTest">calculateTest</RouterLink>
+
+    <!--    <TheWelcome />-->
   </main>
 </template>
