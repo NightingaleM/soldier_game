@@ -55,7 +55,8 @@ export class G {
   s_list: SoldierGenerator[] = [];
   auto_save_timer = null;
   time: number = 0;
-
+  // 是否显示关闭游戏的提示
+  closeMSG: boolean = false;
   constructor() {
 
   }
@@ -165,6 +166,8 @@ export class G {
         item.ATK();
       }
     });
+
+
   }
 
   addGold(num: bigint) {

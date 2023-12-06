@@ -15,6 +15,7 @@
         <li v-for="(item,key) in g.s_list"
             :class="[{unlock: item.active},{showing: currentShowingSoldierName === item.name}]"
             @click="setCurrentShowingSoldierName(item.name)"
+            :id="item.name"
         >
           <div class="infos">
             <img src="" alt="">
@@ -176,9 +177,9 @@ div.content {
               position: absolute;
               width: 1rem;
               height: .3rem;
-              border: 1px solid red;
+              //border: 1px solid red;
               right: 25%;
-              top: 50%;
+              top: 0%;
               transform: translateY(-50%);
             }
           }
@@ -241,13 +242,20 @@ div.content {
     }
   }
 }
-
+</style>
+<style>
 .msg {
-  animation: myAnimation 1s ease;
+  animation: msgAnimation 1s ease;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*align-items: center;*/
+  /*justify-content: center;*/
+  /*text-align: center;*/
+  /*top: 50%;*/
+  /*left: 50%;*/
+  /*transform: translate(-50%, -50%);*/
 }
 @keyframes msgAnimation {
   0% {
@@ -257,7 +265,7 @@ div.content {
 
   100% {
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translateY(0%);
   }
 }
 

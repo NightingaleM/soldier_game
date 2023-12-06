@@ -48,6 +48,7 @@ export class SoldierGenerator {
   // 当前花费
   cost: bigint;
 
+  msgRef: any = null;
   constructor(option: SoldierInterface) {
     const {GoldTarget, G, name} = option;
     this.name = name;
@@ -55,6 +56,14 @@ export class SoldierGenerator {
     this.GoldTarget = GoldTarget;
     this.GET_SAVE_FILE(option);
     this.CALC_DPS();
+    setTimeout(()=>{
+        this.msgRef = document.querySelector(`#${this.name} .msg-box`)
+        if(this.msgRef) {
+          this.msgRef.addEventListener('animationend',event=>{
+            this.msgRef.removeChild(event.target);
+          })
+        }
+    },1000)
   }
 
   /**
@@ -183,7 +192,7 @@ export class SoldierGenerator {
     this.TARGET().hp -= res;
     // 攻击后获取金币
     this.SET_GOLD(res);
-
+    this.SEND_MSG(res)
     // 攻击后触发的技能（效果）
     this.skills.forEach((item) => {
       // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
@@ -346,6 +355,14 @@ export class SoldierGenerator {
     }, 1000);
   }
 
+  SEND_MSG(msg: string) {
+    if(this.G.closeMSG) return;
+    if (!this.msgRef) return;
+    const p = document.createElement('p');
+    p.innerText = msg;
+    p.classList.add('msg');
+    this.msgRef.appendChild(p);
+  }
 }
 
 
