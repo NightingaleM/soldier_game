@@ -10,7 +10,7 @@
 
   <div class="content">
 
-    <div class="soldier-box" ref="soldierBoxRef" @animationend="animationend">
+    <div class="soldier-box" ref="soldierBoxRef">
       <ul>
         <li v-for="(item,key) in g.s_list"
             :class="[{unlock: item.active},{showing: currentShowingSoldierName === item.name}]"
@@ -25,7 +25,10 @@
               <p class="attr">攻击力：{{ item.atk.toLocaleString() }}</p>
               <p class="attr">攻击间隔：{{ item.spd / 1000 }}s</p>
               <div class="msg-box"></div>
-              <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{ item.cost.toLocaleString() }} - 解锁</button>
+              <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{
+                  item.cost.toLocaleString()
+                }} - 解锁
+              </button>
             </div>
 
           </div>
@@ -37,7 +40,9 @@
                   <span>升级攻击力 + {{ item.getCurrentATKIncrement().toLocaleString() }} </span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString() }}
+                  升级花费：{{
+                    (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString()
+                  }}
                   <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
               </div>
@@ -47,7 +52,9 @@
                   <span>升级攻击间隔 - {{ item.getCurrentSPDIncrement() / 1000 }} s</span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString() }}
+                  升级花费：{{
+                    (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString()
+                  }}
                   <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
               </div>
@@ -55,7 +62,8 @@
             <div v-for="skill in item.skills" :key="skill.name"
                  :class="['skill',{unlock: item.level() > skill.unlockLevel}]">
               <p>{{ skill.name }} <span class="unlock-level"
-                                        v-if="item.level() <= skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span></p>
+                                        v-if="item.level() <= skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span>
+              </p>
               <p>{{ skill.intro }}</p>
             </div>
           </div>
@@ -99,10 +107,6 @@ const setCurrentShowingSoldierName = (name) => {
   currentShowingSoldierName.value = name;
 };
 
-const soldierBoxRef = ref(null)
-const animationend = env =>{
-  console.log(env.target);
-}
 
 </script>
 <style scoped lang="less">
@@ -176,11 +180,10 @@ div.content {
             .msg-box {
               position: absolute;
               width: 1rem;
-              height: .3rem;
+              height: 100%;
               //border: 1px solid red;
               right: 25%;
-              top: 0%;
-              transform: translateY(-50%);
+              top: 0;
             }
           }
         }
@@ -219,6 +222,7 @@ div.content {
           .skill {
             opacity: 0.5;
             border-bottom: 1px dashed var(--paper-dark);
+
             &:last-child {
               border-bottom: none;
             }
@@ -247,7 +251,10 @@ div.content {
 .msg {
   animation: msgAnimation 1s ease;
   position: absolute;
-
+  width: max-content;
+  text-align: center;
+  left: 50%;
+  transform: translate(-50%, 100%);
   /*display: flex;*/
   /*flex-direction: column;*/
   /*align-items: center;*/
@@ -257,15 +264,16 @@ div.content {
   /*left: 50%;*/
   /*transform: translate(-50%, -50%);*/
 }
+
 @keyframes msgAnimation {
   0% {
     opacity: 1;
-    transform: translateY(100%);
+    transform: translate(-50%, 100%);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(0%);
+    transform: translate(-50%, 0%);
   }
 }
 

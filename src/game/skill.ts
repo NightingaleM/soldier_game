@@ -29,8 +29,9 @@ export const SKILL_BOOK: {
       intro: '升级攻击时额外获得0.6~1.6倍攻击。',
       type: 'before_upgrade_atk',
       effect: (S: SoldierGenerator) => {
-        return getRandomArbitrary(0.6, 2) * S.getCurrentATKIncrement();
-
+        const atk = getRandomArbitrary(6, 16) * S.getCurrentATKIncrement() / 10n
+        S.SEND_MSG(`+额外攻击：${atk}`);
+        return atk
       }
     };
   },
@@ -43,9 +44,10 @@ export const SKILL_BOOK: {
       type: 'after_upgrade_atk',
       effect: (S: SoldierGenerator) => {
         G.getActiveSoldier().forEach(item => {
-          item.atk += S.atk / 100n;
+          const atk =S.atk / 100n;
+          item.atk += atk
+          item.SEND_MSG(`+老师傅的教导：${atk}`)
         });
-
       }
     };
   },
