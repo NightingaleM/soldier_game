@@ -10,7 +10,7 @@
 
   <div class="content">
 
-    <div class="soldier-box">
+    <div class="soldier-box" ref="soldierBoxRef" @animationend="animationend">
       <ul>
         <li v-for="(item,key) in g.s_list"
             :class="[{unlock: item.active},{showing: currentShowingSoldierName === item.name}]"
@@ -21,10 +21,10 @@
             <div class="info-box">
 
               <h4>{{ item.name }} <span class="level">{{ item.level() }}级</span></h4>
-              <p class="attr">攻击力：{{ item.atk }}</p>
+              <p class="attr">攻击力：{{ item.atk.toLocaleString() }}</p>
               <p class="attr">攻击间隔：{{ item.spd / 1000 }}s</p>
               <div class="msg-box"></div>
-              <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{ item.cost }} - 解锁</button>
+              <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{ item.cost.toLocaleString() }} - 解锁</button>
             </div>
 
           </div>
@@ -33,11 +33,11 @@
               <div class="attr-option" @click.stop="toUploadAtk(item)">
                 <p>
                   <span>Lv: {{ item.atk_level }}</span>
-                  <span>升级攻击力 + {{ item.getCurrentATKIncrement() }} </span>
+                  <span>升级攻击力 + {{ item.getCurrentATKIncrement().toLocaleString() }} </span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n }}
-                  <span>{{ item.cost }}</span>
+                  升级花费：{{ (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString() }}
+                  <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
               </div>
               <div class="attr-option" @click.stop="toUploadSpd(item)">
@@ -46,8 +46,8 @@
                   <span>升级攻击间隔 - {{ item.getCurrentSPDIncrement() / 1000 }} s</span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n }}
-                  <span>{{ item.cost }}</span>
+                  升级花费：{{ (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString() }}
+                  <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
               </div>
             </template>
@@ -66,7 +66,7 @@
 </template>
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
-import {getCurrentInstance, reactive, ref} from 'vue';
+import {getCurrentInstance, onMounted, reactive, ref} from 'vue';
 import {GOLD_CUT_MULTIPLE_NUMERATOR, SoldierGenerator} from '@/game/soldierGenerator';
 
 const internalInstance = getCurrentInstance();
@@ -98,6 +98,10 @@ const setCurrentShowingSoldierName = (name) => {
   currentShowingSoldierName.value = name;
 };
 
+const soldierBoxRef = ref(null)
+const animationend = env =>{
+  console.log(env.target);
+}
 
 </script>
 <style scoped lang="less">
