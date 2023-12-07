@@ -59,16 +59,14 @@ export const fakerJD = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGene
 }));
 
 export const chief = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
-        G: REF_G,
-        GoldTarget: gold,
-        cost: 300000n,
-        name: '领袖',
-        intro: '带我们一起走向胜利。',
-        atk: 100000n,
-        atk_increment: [80000n, 21136n, 99296n],
-        spd: 10000,
-        spd_increment: [20, 10, 5],
-        skills: [SKILL_BOOK['equalityWord'](REF_G), SKILL_BOOK['commonProsperity'](REF_G)]
-    }))
-;
-
+    G: REF_G,
+    GoldTarget: gold,
+    cost: 300000n,
+    name: '领袖',
+    intro: '带我们一起走向胜利。',
+    atk: 100000n,
+    atk_increment: [80000n, 21136n, 99296n],
+    spd: 10000,
+    spd_increment: [20, 10, 5],
+    skills: [SKILL_BOOK['equalityWord'](REF_G), SKILL_BOOK['commonProsperity'](REF_G)]
+}));
