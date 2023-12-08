@@ -1,4 +1,4 @@
-class BossGenerator {
+export class BossGenerator {
     G;
     hp: bigint
     afterAttack: any

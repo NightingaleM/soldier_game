@@ -176,6 +176,7 @@ export class SoldierGenerator {
         this.TARGET().hp -= res;
         // 攻击后获取金币
         this.SET_GOLD(res);
+        // 显示攻击信息
         this.SEND_MSG(res)
         // 攻击后触发的技能（效果）
         this.skills.forEach((item) => {
