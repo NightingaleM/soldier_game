@@ -1,7 +1,7 @@
 <template>
 
   <div class="head">
-    <h4 class="gold">{{ g.gold.sum.toLocaleString() }}</h4>
+    <h4 class="gold">{{ g.goldCoin.sum.toLocaleString() }}</h4>
     <!--    <span>x {{ g.gold.getAddMultiple() }}%</span>    -->
     <div class="boss-box">
       <h4>{{ g.target().hp.toLocaleString() }}</h4>
@@ -41,7 +41,7 @@
                 </p>
                 <div class="cost">
                   升级花费：{{
-                    (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString()
+                    (item.cost * (g.goldCoin.GOLD_CUT_MULTIPLE_NUMERATOR / g.goldCoin.getCutMultiple()) / 1000n).toLocaleString()
                   }}
                   <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
@@ -53,7 +53,7 @@
                 </p>
                 <div class="cost">
                   升级花费：{{
-                    (item.cost * (GOLD_CUT_MULTIPLE_NUMERATOR / g.gold.getCutMultiple()) / 1000n).toLocaleString()
+                    (item.cost * (g.goldCoin.GOLD_CUT_MULTIPLE_NUMERATOR / g.goldCoin.getCutMultiple()) / 1000n).toLocaleString()
                   }}
                   <span>{{ item.cost.toLocaleString() }}</span>
                 </div>
@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
 import {getCurrentInstance, onMounted, reactive, ref} from 'vue';
-import {GOLD_CUT_MULTIPLE_NUMERATOR, SoldierGenerator} from '@/game/generators/soldierGenerator';
+import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
 
 const internalInstance = getCurrentInstance();
 

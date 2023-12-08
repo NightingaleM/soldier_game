@@ -1,4 +1,4 @@
-import type {SKILL, SoldierGenerator} from '@/game/generators/soldierGenerator';
+import type {SKILL, SoldierGenerator} from '@/game/generators/SoldierGenerator';
 import type {G} from '@/game/gameGenerator';
 import {createProbabilityFunction} from '@/game/utensil';
 

@@ -7,13 +7,6 @@ export interface SKILL {
   effect: any
 }
 
-export interface GoldTargetInterface {
-  sum: bigint,
-  getAddMultiple: () => bigint
-  getCutMultiple: () => bigint
-  addMultiples: {[prop: string]: bigint}
-  cutMultiples: {[prop: string]: bigint}
-}
 
 export interface SoldierInterface {
   G: object, // 全局游戏实例
@@ -25,6 +18,6 @@ export interface SoldierInterface {
   spd_increment: any, // 速度增长，如攻击力增长
   cost: bigint, // 花费，购买时需要的金币，同时也是升级时所需花费，会逐步增长
   skills?: SKILL[] // 技能李彪
-  GoldTarget: GoldTargetInterface // 全局的金币对象
+
 }
 

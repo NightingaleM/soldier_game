@@ -1,11 +1,9 @@
-import {SoldierGenerator} from '@/game/generators/soldierGenerator';
+import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
 import {SKILL_BOOK} from '@/game/units/skill';
 import {G} from '@/game/gameGenerator';
-import {GoldTargetInterface} from '@/game/game.d.ts';
 
-export const luckBoy = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
+export const luckBoy = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    GoldTarget: gold,
     cost: 100n,
     name: '普通的男人',
     intro: '普通，但是幸运的男人。',
@@ -17,9 +15,8 @@ export const luckBoy = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGene
 }));
 
 
-export const luckGirl = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
+export const luckGirl = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    GoldTarget: gold,
     cost: 100n,
     name: '普通的女人',
     intro: '普通，但是幸运的女人。',
@@ -31,9 +28,8 @@ export const luckGirl = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGen
 }));
 
 
-export const oldTeacher = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
+export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    GoldTarget: gold,
     cost: 30000n,
     name: '老师傅',
     intro: '知识丰富的老司机，成长到一定阶段愿意向其他士兵倾囊相授。',
@@ -45,9 +41,8 @@ export const oldTeacher = (REF_G: G, gold: GoldTargetInterface) => (new SoldierG
 }));
 
 
-export const fakerJD = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
+export const fakerJD = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    GoldTarget: gold,
     cost: 100000n,
     name: 'DJ',
     intro: '天天打碟，烦不烦啊？',
@@ -58,9 +53,8 @@ export const fakerJD = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGene
     skills: [SKILL_BOOK['ferment'](REF_G), SKILL_BOOK['fakeDJ'](REF_G)]
 }));
 
-export const chief = (REF_G: G, gold: GoldTargetInterface) => (new SoldierGenerator({
+export const chief = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    GoldTarget: gold,
     cost: 300000n,
     name: '领袖',
     intro: '带我们一起走向胜利。',
