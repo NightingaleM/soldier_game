@@ -1,10 +1,10 @@
 import {reactive} from 'vue';
-import {SoldierGenerator} from '@/game/soldierGenerator';
-import {SKILL_BOOK} from '@/game/skill';
-import {JSON_with_bigInt} from '@/game/unit';
-import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/soldiers';
+import {SoldierGenerator} from '@/game/generators/soldierGenerator';
+import {SKILL_BOOK} from '@/game/units/skill';
+import {JSON_with_bigInt} from '@/game/utensil';
+import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/units/soldiers';
 import {GoldTargetInterface} from '@/game/game.d.ts';
-import {Mementos} from '@/game/memento';
+import {Mementos} from '@/game/units/memento';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新

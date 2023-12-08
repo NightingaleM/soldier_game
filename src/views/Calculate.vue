@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
 import {getCurrentInstance, onMounted, reactive, ref} from 'vue';
-import {GOLD_CUT_MULTIPLE_NUMERATOR, SoldierGenerator} from '@/game/soldierGenerator';
+import {GOLD_CUT_MULTIPLE_NUMERATOR, SoldierGenerator} from '@/game/generators/soldierGenerator';
 
 const internalInstance = getCurrentInstance();
 

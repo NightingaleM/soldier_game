@@ -1,5 +1,5 @@
-import {SoldierGenerator} from '@/game/soldierGenerator';
-import {SKILL_BOOK} from '@/game/skill';
+import {SoldierGenerator} from '@/game/generators/soldierGenerator';
+import {SKILL_BOOK} from '@/game/units/skill';
 import {G} from '@/game/gameGenerator';
 import {GoldTargetInterface} from '@/game/game.d.ts';
 
