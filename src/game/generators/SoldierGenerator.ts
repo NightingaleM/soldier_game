@@ -146,9 +146,6 @@ export class SoldierGenerator {
         return this.spd_level + this.atk_level;
     }
 
-    TARGET() {
-        return this.G.boss_list[this.G.current_boss_index];
-    }
 
     UNLOCK() {
         if (!this.G.goldCoin.isEnough(this.cost)) {
@@ -167,21 +164,29 @@ export class SoldierGenerator {
 
     ATK_IMMEDIATELY() {
         let res = this.atk;
+        Object.values(this.G.memento_list.before_atk).filter(item => item.num > 0).forEach(item=>{
+            res += item.effect(this);
+        })
         this.skills.forEach((item) => {
             // 检查攻击前触发的技能，并执行技能效果，将技能结果加到攻击力上
             res += checkActiveSkill(item, 'before_atk', this.level())?.effect(this) ?? 0n;
         });
         this.SET_FinallyDmg(res);
-        // @ts-ignore
-        this.TARGET().hp -= res;
-        // 攻击后获取金币
-        this.SET_GOLD(res);
+        console.log(res);
+        this.G.target().changeHp(res * -1n);
+
+        // // 攻击后获取金币
+        // this.SET_GOLD(res);
+        // 攻击后由boss爆金币， 技能额外金币由 after_atk 触发
+
         // 显示攻击信息
         this.SEND_MSG(res)
         // 攻击后触发的技能（效果）
         this.skills.forEach((item) => {
             // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
-            res += checkActiveSkill(item, 'after_atk', this.level())?.effect(this) ?? 0n;
+            checkActiveSkill(item, 'after_atk', this.level())?.effect(this,{
+                atkRes: res
+            })
         });
     }
 
@@ -266,7 +271,7 @@ export class SoldierGenerator {
             n += checkActiveSkill(item, 'before_upgrade_atk', this.level())?.effect(this) ?? 0n;
         });
         // 升级攻击力前 查看有什么遗物需要触发
-        this.G.memento_list.before_upgrade_atk.filter(item => item.num > 0).forEach(memento => {
+        Object.values(this.G.memento_list.before_upgrade_atk).filter(item => item.num > 0).forEach(memento => {
             n += memento.effect({S: this, G: this.G});
         });
         this.atk += n;
@@ -304,7 +309,7 @@ export class SoldierGenerator {
             n += checkActiveSkill(item, 'before_upgrade_spd', this.level())?.effect(this) ?? 0;
         });
         // 升级攻击间隔前 查看有什么遗物需要触发
-        this.G.memento_list.before_upgrade_spd.filter(item => item.num > 0).forEach(memento => {
+        Object.values(this.G.memento_list.before_upgrade_spd).filter(item => item.num > 0).forEach(memento => {
             n += memento.effect({S: this, G: this.G});
         });
         // 看降低后的攻击间隔是否小于 最小允许的攻击间隔，如果小于，则最低给与 允许的最小 的攻击间隔

@@ -20,6 +20,7 @@ export const Mementos = {
     intro: '提高英雄攻击速度成长',
     type: 'before_upgrade_spd',
     num: 0,
+    max: 100,
     effect: function ({S, G}: { SoldierGenerator, G }): number {
       return S.getCurrentSPDIncrement() * this.num / 100;
     }
@@ -45,5 +46,29 @@ export const Mementos = {
     }
   },
 
+  // 生锈的铁钉
+  rusty_nail: {
+    name: '生锈的铁钉',
+    intro: '每次攻击对敌人造成固定伤害',
+    type: 'before_atk',
+    numType: 'BigInt',
+    num: 0n,
+    max: Infinity,
+    effect: function ({S, G}: { SoldierGenerator, G }): BigInt {
+      return this.num;
+    }
+  },
 
+  // 老鼠和蟑螂小弟
+  mouse_and_cockroach: {
+    name: '老鼠和蟑螂小弟',
+    intro: '怎么也杀不完，干脆驯化成小弟了，每次攻击可以获取固定量的金币',
+    type: 'after_atk',
+    numType: 'BigInt',
+    num: 0n,
+    max: Infinity,
+    effect: function ({S, G}: { SoldierGenerator, G }) {
+      G.goldCoin.changeSum(BigInt(this.num));
+    }
+  }
 };
