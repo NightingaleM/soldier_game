@@ -5,6 +5,9 @@
     <!--    <span>x {{ g.gold.getAddMultiple() }}%</span>    -->
     <div class="boss-box">
       <h4>{{ g.target().hp.toLocaleString() }}</h4>
+      <div class="boss-img">
+        <img src="" alt="">
+      </div>
     </div>
   </div>
 
@@ -23,10 +26,10 @@
 
               <h4>{{ item.name }} <span class="level">{{ item.level() }}级</span></h4>
               <p class="attr">攻击力：{{ item.atk.toLocaleString() }}</p>
-              <p class="attr">攻击间隔：{{ item.spd / 1000 }}s</p>
+              <p class="attr">攻击间隔：{{ (item.spd / 1000).toFixed(3) }}s</p>
               <div class="msg-box"></div>
               <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{
-                  item.cost.toLocaleString()
+                  item.cost().toLocaleString()
                 }} - 解锁
               </button>
             </div>
@@ -40,22 +43,18 @@
                   <span>升级攻击力 + {{ item.getCurrentATKIncrement().toLocaleString() }} </span>
                 </p>
                 <div class="cost">
-                  升级花费：{{
-                    (item.cost * (g.goldCoin.GOLD_CUT_MULTIPLE_NUMERATOR / g.goldCoin.getCutMultiple()) / 1000n).toLocaleString()
-                  }}
-                  <span>{{ item.cost.toLocaleString() }}</span>
+                  升级花费：{{ item.realCost().toLocaleString() }}
+                  <span>{{ item.cost().toLocaleString() }}</span>
                 </div>
               </div>
               <div class="attr-option" @click.stop="toUploadSpd(item)">
                 <p>
                   <span>Lv: {{ item.spd_level }}</span>
-                  <span>升级攻击间隔 - {{ item.getCurrentSPDIncrement() / 1000 }} s</span>
+                  <span>升级攻击间隔 - {{ (item.getCurrentSPDIncrement() / 1000).toFixed(5) }} s</span>
                 </p>
                 <div class="cost">
-                  升级花费：{{
-                    (item.cost * (g.goldCoin.GOLD_CUT_MULTIPLE_NUMERATOR / g.goldCoin.getCutMultiple()) / 1000n).toLocaleString()
-                  }}
-                  <span>{{ item.cost.toLocaleString() }}</span>
+                  升级花费：{{ item.realCost().toLocaleString() }}
+                  <span>{{ item.cost().toLocaleString() }}</span>
                 </div>
               </div>
             </template>

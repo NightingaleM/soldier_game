@@ -16,8 +16,8 @@ export interface SoldierInterface {
   atk_increment: any, // 攻击力增长，是个数组，不同阶段有不同的增长率
   spd: number, // 攻击频率，单位为毫秒
   spd_increment: any, // 速度增长，如攻击力增长
-  cost: bigint, // 花费，购买时需要的金币，同时也是升级时所需花费，会逐步增长
-  skills?: SKILL[] // 技能李彪
+  unlockCost: bigint, // 解锁时所需要的花费
+  skills?: SKILL[] // 技能列表
 
 }
 

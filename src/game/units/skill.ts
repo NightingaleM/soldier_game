@@ -124,12 +124,18 @@ export const SKILL_BOOK: {
             effect: (S: SoldierGenerator) => {
                 if (Math.random() < 0.2 && Math.random() > 0.8) { // 4%
                     let s = G.getActiveSoldier();
-                    G.gold.sum = G.gold.sum * (BigInt(s.length) - 1n) / BigInt(s.length);
+                    G.goldCoin.changeSum(G.goldCoin.sum * (BigInt(s.length) - 1n) / BigInt(s.length))
                     let {atk_level, spd_level} = S;
                     if (atk_level === spd_level && Math.random() < 0.4) {  // 1.6%
                         s.forEach(item => {
-                            item.UPGRADE_ATK(true);
-                            item.UPGRADE_SPD(true);
+                            item.UPGRADE_ATK({
+                                withoutCost: true,
+                                withoutLevel: true
+                            });
+                            item.UPGRADE_SPD({
+                                withoutCost: true,
+                                withoutLevel: true
+                            });
                         });
                     } else {
                         let type = atk_level > spd_level ? 'ATK' : 'SPD';

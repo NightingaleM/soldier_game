@@ -48,7 +48,7 @@ export class CurrencyGenerator {
     }
 
     isEnough(value: bigint) {
-        return this._sum * (this.GOLD_CUT_MULTIPLE_NUMERATOR / this.getCutMultiple()) / 1000n > value
+        return this._sum * (this.GOLD_CUT_MULTIPLE_NUMERATOR / this.getCutMultiple()) / 1000n >= value
     }
 
     addMultiples({name, value}: { name: any, value: bigint }) {

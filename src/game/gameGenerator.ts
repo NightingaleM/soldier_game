@@ -3,7 +3,7 @@ import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
 import {CurrencyGenerator} from '@/game/generators/CurrencyGenerator';
 import {SKILL_BOOK} from '@/game/units/skill';
 import {JSON_with_bigInt} from '@/game/utensil';
-import {chief, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/units/soldiers';
+import {chief, child, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/units/soldiers';
 import {Mementos} from '@/game/units/memento';
 import {GoldCoin} from '@/game/units/currencys';
 import {Dummy} from '@/game/units/monsters';
@@ -150,6 +150,7 @@ export class G {
   }
 
   initSoldierList() {
+    this.s_list.push(child(this.REF_G));
     this.s_list.push(luckBoy(this.REF_G));
     this.s_list.push(luckGirl(this.REF_G));
     this.s_list.push(oldTeacher(this.REF_G));
