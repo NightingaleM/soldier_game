@@ -32,7 +32,7 @@ export class G {
     after_atk: {},
   };
   current_boss_index: number = 0; // 第几个boss
-  s_list: SoldierGenerator[] = [];
+  s_list = {};
   // 金币-货币
   goldCoin: CurrencyGenerator;
 
@@ -88,7 +88,7 @@ export class G {
     Object.keys(Mementos).forEach(key => {
       const item = Mementos[key];
       item.num = mementos?.[key] ?? 0;
-      if(item?.numType === 'BigInt') {
+      if (item?.numType === 'BigInt') {
         item.num = BigInt(item.num);
       }
       if (item.type === 'unique') { // 如果是独特遗物则直接放在memento_list第一层
@@ -139,7 +139,7 @@ export class G {
   AUTO_SAVE() {
     this.auto_save_timer = setTimeout(() => {
       this.SAVE_IN_STORAGE();
-      this.s_list.forEach(item => {
+      Object.values(this.s_list).forEach(item => {
         item.SAVE_IN_STORAGE();
       });
       this.boss_list.forEach(item => {
@@ -151,18 +151,18 @@ export class G {
   }
 
   initSoldierList() {
-    this.s_list.push(child(this.REF_G));
-    this.s_list.push(luckBoy(this.REF_G));
-    this.s_list.push(luckGirl(this.REF_G));
-    this.s_list.push(oldTeacher(this.REF_G));
-    this.s_list.push(fakerJD(this.REF_G));
-    this.s_list.push(chief(this.REF_G));
+    this.s_list['child'] = child(this.REF_G);
+    this.s_list['luckBoy'] = luckBoy(this.REF_G);
+    this.s_list['luckGirl'] = luckGirl(this.REF_G);
+    this.s_list['oldTeacher'] = oldTeacher(this.REF_G);
+    this.s_list['fakerJD'] = fakerJD(this.REF_G);
+    this.s_list['chief'] = chief(this.REF_G);
 
 
-    this.s_list.forEach(item => {
+    Object.values(this.s_list).forEach(item => {
       item.CALC_OFFLINE_INCOME();
     });
-    this.s_list.forEach(item => {
+    Object.values(this.s_list).forEach(item => {
       if (item.active) {
         item.ATK();
       }
@@ -186,6 +186,6 @@ export class G {
   }
 
   getActiveSoldier() {
-    return this.s_list.filter(item => item.active);
+    return Object.values(this.s_list).filter(item => item.active);
   }
 }

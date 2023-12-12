@@ -6,7 +6,7 @@
     <div class="boss-box">
       <h4>{{ g.target().hp.toLocaleString() }}</h4>
       <div class="boss-img">
-        <img src="" alt="">
+        <img src="" alt="" @click="childAtk">
       </div>
     </div>
   </div>
@@ -106,6 +106,10 @@ const setCurrentShowingSoldierName = (name) => {
   currentShowingSoldierName.value = name;
 };
 
+const childAtk = () => {
+  g.s_list['child'].ATK_IMMEDIATELY();
+};
+
 
 </script>
 <style scoped lang="less">
@@ -130,6 +134,15 @@ const setCurrentShowingSoldierName = (name) => {
       text-align: center;
       font-size: 24px;
       font-weight: bolder;
+    }
+
+    .boss-img {
+      img {
+        width: 100%;
+        height: 50rem;
+        background-color: #38bd68;
+        border-radius: .3rem;
+      }
     }
   }
 }
