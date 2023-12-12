@@ -88,7 +88,7 @@ export class G {
     Object.keys(Mementos).forEach(key => {
       const item = Mementos[key];
       item.num = mementos?.[key] ?? 0;
-      if(item?.numType === 'bigInt') {
+      if(item?.numType === 'BigInt') {
         item.num = BigInt(item.num);
       }
       if (item.type === 'unique') { // 如果是独特遗物则直接放在memento_list第一层
