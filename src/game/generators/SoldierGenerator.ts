@@ -5,8 +5,9 @@ import {SKILL, SoldierInterface} from '@/game/game.d.ts';
 const CostSequenceGenerator = (initialValue) => {
     return function () {
         let sum = 0n;
-        for (let i = 0n; i < this.level(); i++) {
-            sum += i * initialValue;
+        let n = BigInt(this.level())
+        for (let i = 0n; i < n; i++) {
+            sum += i * initialValue + (i ** 3n / (i + n))
         }
         return initialValue + sum;
     };
@@ -50,7 +51,7 @@ export class SoldierGenerator {
         this.name = name;
         this.G = G;
         this.GET_SAVE_FILE(option);
-        this.cost= CostSequenceGenerator(this.unlockCost);
+        this.cost = CostSequenceGenerator(this.unlockCost);
         this.CALC_DPS();
         setTimeout(() => {
             this.msgRef = document.querySelector(`#${this.name} .msg-box`)
@@ -69,12 +70,12 @@ export class SoldierGenerator {
      */
     SAVE_IN_STORAGE() {
         const {
-            name, intro, atk, spd, unlockCost, skills, atk_increment,
+            name, intro, atk, spd, unlockCost, skills,
             atk_level, spd_level, active
         } = this;
         const data = {
             name, intro, atk, spd, unlockCost, active, atk_level, spd_level,
-            atk_increment,  skillId: skills.map(item => item.id)
+            skillId: skills.map(item => item.id)
         };
         localStorage.setItem(`${name}`, JSON_with_bigInt(data));
 
@@ -97,7 +98,7 @@ export class SoldierGenerator {
                 // @ts-ignore
                 data.skills.push(SKILL_BOOK[id](this.G));
             });
-            this.INIT(data);
+            this.INIT(Object.assign(option,data));
         } else {
             this.INIT(option);
         }
@@ -118,7 +119,7 @@ export class SoldierGenerator {
         this.atk = BigInt(atk);
         this.spd = spd;
         this.skills = skills ?? [];
-        this.atk_increment = atk_increment.map(item => BigInt(item));
+        this.atk_increment = atk_increment
         this.spd_increment = spd_increment;
         this.unlockCost = BigInt(unlockCost);
 
@@ -180,7 +181,7 @@ export class SoldierGenerator {
 
     ATK_IMMEDIATELY() {
         let res = this.atk;
-        Object.values(this.G.memento_list.before_atk).filter(item => item.num > 0).forEach(item=>{
+        Object.values(this.G.memento_list.before_atk).filter(item => item.num > 0).forEach(item => {
             res += item.effect(this);
         })
         this.skills.forEach((item) => {
@@ -199,7 +200,7 @@ export class SoldierGenerator {
         // 攻击后触发的技能（效果）
         this.skills.forEach((item) => {
             // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
-            checkActiveSkill(item, 'after_atk', this.level())?.effect(this,{
+            checkActiveSkill(item, 'after_atk', this.level())?.effect(this, {
                 atkRes: res
             })
         });
@@ -255,13 +256,13 @@ export class SoldierGenerator {
 
     getCurrentATKIncrement(level?: number): bigint {
         let l = level ?? this.atk_level;
-        return l > 50 ? l > 100 ? this[`atk_increment`][2] : this[`atk_increment`][1] : this[`atk_increment`][0];
+        return this.atk_increment(l)
     }
 
     isEnoughGoldCoin(withoutCost: boolean) {
         const isReject = !withoutCost && !this.G.goldCoin.isEnough(this.cost())
         if (isReject) {
-          console.log('金币不足')
+            console.log('金币不足')
             // TODO: 需要弹出提醒金币不够
             return false
         }
@@ -275,9 +276,9 @@ export class SoldierGenerator {
      * @constructor
      */
     UPGRADE_ATK = ({
-      withoutCost,withoutLevelUp
+                       withoutCost, withoutLevelUp
                    } = {
-      withoutCost: false, withoutLevelUp:false
+        withoutCost: false, withoutLevelUp: false
     }) => {
         if (!this.active) {
             throw new Error('no active ,cannot UPGRADE !');
@@ -286,8 +287,8 @@ export class SoldierGenerator {
         // 检查金币是否足够
         if (!this.isEnoughGoldCoin(withoutCost)) return
         // 如果不是免费升级，则扣除金币
-        if (!withoutCost) this.SET_GOLD(this.cost()* -1n);
-        this.atk_level +=  withoutLevelUp ? 0 : 1;
+        if (!withoutCost) this.SET_GOLD(this.cost() * -1n);
+        this.atk_level += withoutLevelUp ? 0 : 1;
         let n = this.getCurrentATKIncrement();
         this.skills.forEach((item) => {
             n += checkActiveSkill(item, 'before_upgrade_atk', this.level())?.effect(this) ?? 0n;
@@ -301,7 +302,7 @@ export class SoldierGenerator {
             this.atk = this.atk * 2n; // 攻击力升级到50级时，当前攻击力翻倍
         }
         if (this.atk_level === 100) {
-            this.atk = this.atk * 5n; // 攻击力升级到100级时，当前攻击力翻 5 倍
+            this.atk = this.atk * 2n; // 攻击力升级到100级时，当前攻击力翻 2 倍
         }
         this.skills.forEach((item) => {
             checkActiveSkill(item, 'after_upgrade_atk', this.level())?.effect(this);
@@ -318,17 +319,17 @@ export class SoldierGenerator {
      * @constructor
      */
     UPGRADE_SPD = ({
-      withoutCost,withoutLevelUp
+                       withoutCost, withoutLevelUp
                    } = {
-      withoutCost: false, withoutLevelUp:false
+        withoutCost: false, withoutLevelUp: false
     }) => {
         if (!this.active) {
             throw new Error('not active ,cannot UPGRADE !');
             return;
         }
         if (!this.isEnoughGoldCoin(withoutCost)) return
-        if (!withoutCost) this.SET_GOLD(this.cost()* -1n); // 扣钱
-        this.spd_level +=  withoutLevelUp ? 0 : 1;
+        if (!withoutCost) this.SET_GOLD(this.cost() * -1n); // 扣钱
+        this.spd_level += withoutLevelUp ? 0 : 1;
         let n = this.getCurrentSPDIncrement(); // 查看这次要减少多少攻击间隔
         this.skills.forEach((item) => { // 升级攻击间隔前看有什么技能需要触发
             n += checkActiveSkill(item, 'before_upgrade_spd', this.level())?.effect(this) ?? 0;
@@ -345,7 +346,7 @@ export class SoldierGenerator {
         this.spd = res < maxSpd ? maxSpd : res;
 
 
-      // 精修攻击速度，打出去的伤害怎么的也会变高吧？
+        // 精修攻击速度，打出去的伤害怎么的也会变高吧？
         // 攻速50后，每次升级提升对应攻击增长0.1的攻击力,这种增加不会触发升级攻击力相关技能
         if (this.spd_level > 50) {
             let n = this.getCurrentATKIncrement(this.spd_level);

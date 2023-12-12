@@ -6,7 +6,7 @@ import {JSON_with_bigInt} from '@/game/utensil';
 import {chief, child, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/units/soldiers';
 import {Mementos} from '@/game/units/memento';
 import {GoldCoin} from '@/game/units/currencys';
-import {Dummy} from '@/game/units/monsters';
+import {Dummy, MouseAndCockroach} from '@/game/units/monsters';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
@@ -59,6 +59,7 @@ export class G {
 
   INIT_MONSTER() {
     this.boss_list.push(Dummy(this.REF_G));
+    this.boss_list.push(MouseAndCockroach(this.REF_G));
   }
 
   SET_REF_SELF(G) {

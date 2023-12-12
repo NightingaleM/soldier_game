@@ -5,30 +5,29 @@ import {G} from '@/game/gameGenerator';
 
 const spdSequenceGenerator = (initialValue) => {
   let sequence = [initialValue];
-  return function (n) {
-    if (n <= sequence.length) {
-      return sequence[n - 1];
+  return function (level) {
+    if (level <= sequence.length) {
+      return sequence[level - 1];
     }
-    for (let i = sequence.length + 1; i <= n; i++) {
+    for (let i = sequence.length + 1; i <= level; i++) {
       sequence.push(sequence[i - 2] * (1 - 0.01 * (i - 1)));
     }
-    return sequence[n - 1];
+    return sequence[level - 1];
   };
 };
 
-const atkSequenceGenerator = (initialValue) => {
-  let sequence = [initialValue];
-
-  return function (n) {
-    if (n <= sequence.length) {
-      return sequence[n - 1];
+const atkSequenceGenerator = (initialValue:bigint) => {
+  let sequence:bigint[] = [initialValue];
+  return function (level) {
+    if (level <= sequence.length) {
+      return sequence[level - 1];
     }
-
-    for (let i = sequence.length + 1; i <= n; i++) {
-      sequence.push(sequence[i - 2] + Math.floor(i / 2));
+    for (let i = sequence.length + 1; i <= level; i++) {
+      sequence.push(sequence[i - 2] + BigInt(Math.floor(i / 2)));
     }
-
-    return sequence[n - 1];
+    //
+    const ex = 1n + BigInt(Math.floor(level / 50));
+    return sequence[level - 1] * ex;
   };
 };
 
@@ -40,7 +39,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
   name: '小孩',
   intro: '小孩，活力旺盛的小孩',
   atk: 1n,
-  atk_increment: [1n, 2n, 3n],
+  atk_increment: atkSequenceGenerator(1n),
   spd: 1000,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['exAtk'](REF_G)]
@@ -52,7 +51,7 @@ export const luckBoy = (REF_G: G) => (new SoldierGenerator({
   name: '普通的男人',
   intro: '普通，但是幸运的男人。',
   atk: 10n,
-  atk_increment: [10n, 60n, 296n],
+  atk_increment: atkSequenceGenerator(10n),
   spd: 5000,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['exAtk'](REF_G)]
@@ -65,7 +64,7 @@ export const luckGirl = (REF_G: G) => (new SoldierGenerator({
   name: '普通的女人',
   intro: '普通，但是幸运的女人。',
   atk: 5n,
-  atk_increment: [8n, 50n, 256n],
+  atk_increment: atkSequenceGenerator(8n),
   spd: 2500,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['allWordAtk'](REF_G)]
@@ -78,7 +77,7 @@ export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
   name: '老师傅',
   intro: '知识丰富的老司机，成长到一定阶段愿意向其他士兵倾囊相授。',
   atk: 1000n,
-  atk_increment: [198n, 1136n, 9296n],
+  atk_increment: atkSequenceGenerator(198n),
   spd: 2000,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['teachOtherAtk'](REF_G)]
@@ -91,7 +90,7 @@ export const fakerJD = (REF_G: G) => (new SoldierGenerator({
   name: 'DJ',
   intro: '天天打碟，烦不烦啊？',
   atk: 10000n,
-  atk_increment: [1989n, 21136n, 99296n],
+  atk_increment: atkSequenceGenerator(1989n),
   spd: 2000,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['ferment'](REF_G), SKILL_BOOK['fakeDJ'](REF_G)]
@@ -103,7 +102,7 @@ export const chief = (REF_G: G) => (new SoldierGenerator({
   name: '领袖',
   intro: '带我们一起走向胜利。',
   atk: 100000n,
-  atk_increment: [80000n, 21136n, 99296n],
+  atk_increment: atkSequenceGenerator(80000n),
   spd: 10000,
   spd_increment: spdSequenceGenerator(40),
   skills: [SKILL_BOOK['equalityWord'](REF_G), SKILL_BOOK['commonProsperity'](REF_G)]
