@@ -1,3 +1,4 @@
+import {CheckActiveEffect} from "@/game/utensil";
 export class CurrencyGenerator {
     private G: any;
     private _sum: bigint = 0n;
@@ -24,9 +25,9 @@ export class CurrencyGenerator {
         return this._sum;
     }
 
+    // @CheckActiveEffect('currencyChange')
     changeSum(value: bigint) {
         if (value > 0n) {
-
             let multiple = this.getAddMultiple()
             this._sum += value * BigInt(multiple) / 100n;
         } else if (value < 0n) {

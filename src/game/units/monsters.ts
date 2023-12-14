@@ -9,8 +9,17 @@ export const Dummy = (G) => (new MonsterGenerator({
   },
   afterAttack: (self, G, {atkRes}) => {
   },
-  afterDead: (self, G, {atkRes}) => {
-    G.AddMemento('rusty_nail');
+  aliveEffect(){
+    // const fn = () =>{
+    //   this.aliveEffectTimer = setTimeout(()=>{
+    //     G.goldCoin.changeSum(1n);
+    //     fn();
+    //   }, 3000)
+    // }
+    // fn();
+  },
+  afterDead: (self, {atkRes}) => {
+    G.ADD_MEMENTO('rusty_nail');
   },
   beforeSetGold: (finalDamage) => ({goldValue: finalDamage < 0n ? -finalDamage : finalDamage}),
 }));
@@ -25,10 +34,11 @@ export const MouseAndCockroach = (G) => (new MonsterGenerator({
   },
   afterAttack: (self, G, {atkRes}) => {
   },
-  afterDead: (self, G, {atkRes}) => {
+  aliveEffect:()=>{},
+  afterDead: (self, {atkRes}) => {
     G.goldCoin.changeSum(1000n);
     if(self.deadTimes> 10) {
-      G.AddMemento('mouse_and_cockroach');
+      G.ADD_MEMENTO('mouse_and_cockroach');
     }
   },
   beforeSetGold: (finalDamage) => ({goldValue: finalDamage < 0n ? -finalDamage : finalDamage}),

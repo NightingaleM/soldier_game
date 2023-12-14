@@ -43,7 +43,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
   spd: 5000,
   spd_increment: spdSequenceGenerator(50),
   // TODO: atk_increment 根据激活次数来提高基础值，如，第二次重生，则基础值为2。
-  skills: []
+  skills: [SKILL_BOOK['smallRedPacket'](REF_G)]
 }));
 
 export const luckBoy = (REF_G: G) => (new SoldierGenerator({

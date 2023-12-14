@@ -38,11 +38,19 @@ export class G {
 
   auto_save_timer = null;
   time: number = 0;
+  timers = {}
   // 是否显示关闭游戏的提示
   closeMSG: boolean = false;
 
   constructor() {
 
+  }
+  SET_REF_SELF(G) {
+    this.REF_G = G;
+    this.INIT_GAME();
+    setTimeout(() => {
+      this.AUTO_SAVE();
+    }, 100);
   }
 
   INIT_GAME() {
@@ -50,7 +58,8 @@ export class G {
     this.INIT_MONSTER();
     this.LOAD_MEMENTO(); // 加载遗物数据，遗物数据的历史数据加载将在这里完成
     this.LOAD_SAVE(); // 查看并加载历史数据
-    this.initSoldierList(); // 初始化所有士兵，如果有离线收益，还需要等计算完所有离线收益后再开始攻击。
+    this.INIT_SOLDIER(); // 初始化所有士兵，如果有离线收益，还需要等计算完所有离线收益后再开始攻击。
+    this.INIT_GLOBAL_EFFECT()
   }
 
   INIT_CURRENCY() {
@@ -62,20 +71,13 @@ export class G {
     this.boss_list.push(MouseAndCockroach(this.REF_G));
   }
 
-  SET_REF_SELF(G) {
-    this.REF_G = G;
-    this.INIT_GAME();
-    setTimeout(() => {
-      this.AUTO_SAVE();
-    }, 100);
-  }
-
   LOAD_SAVE() {
     let saveInfo = localStorage.getItem('sg_lsg_s');
     if (!saveInfo) return;
     saveInfo = JSON.parse(saveInfo);
-    const {time} = saveInfo;
+    const {time,current_boss_index} = saveInfo;
     this.time = time;
+    this.current_boss_index = current_boss_index
   }
 
   LOAD_MEMENTO() {
@@ -102,7 +104,7 @@ export class G {
     });
   }
 
-  AddMemento(name) {
+  ADD_MEMENTO(name) {
     const type = Mementos[name].type;
     if (type === 'unique') {
       //   如果是独特遗物且获取量没有超过上限，则数量+1
@@ -150,7 +152,7 @@ export class G {
     }, 1000);
   }
 
-  initSoldierList() {
+  INIT_SOLDIER() {
     this.s_list['child'] = child(this.REF_G);
     this.s_list['luckBoy'] = luckBoy(this.REF_G);
     this.s_list['luckGirl'] = luckGirl(this.REF_G);
@@ -171,6 +173,18 @@ export class G {
 
   }
 
+  INIT_GLOBAL_EFFECT(){
+    this.getActiveSoldier().forEach(s=>{
+      s.skills.filter(item=>{
+        return (item.type==='global') && (s.level() >= item.unlockLevel)
+      }).forEach(item=>{
+        this.timers[`${s.name}_${item.id}`] = item.effect({skill:item,G:this,S: s})
+      })
+    })
+    this.target().aliveEffect()
+
+
+  }
   target() {
     return this.boss_list[this.current_boss_index];
   }

@@ -3,6 +3,7 @@ export class MonsterGenerator {
   deadTimes: number = 0;
   private _hp: bigint;
   private originHp: bigint;
+  aliveEffect: any;
   afterAttack: any;
   beforeAttack: any;
   beforeSetGold: any;
@@ -12,9 +13,11 @@ export class MonsterGenerator {
   img: string;
   images: string[];
 
+  aliveEffectTimer: any;
+
   constructor(option) {
     const {
-      name, hp, beforeAttack, afterAttack, afterDead, beforeSetGold, intro, G,
+      name, hp, beforeAttack, afterAttack, afterDead, beforeSetGold, intro, G,aliveEffect,
       img, images
     } = option;
     this.G = G;
@@ -26,6 +29,7 @@ export class MonsterGenerator {
     this.beforeSetGold = beforeSetGold;
     this.afterAttack = afterAttack;
     this.afterDead = afterDead;
+    this.aliveEffect = aliveEffect
     this.LOAD_SAVE();
   }
 
@@ -42,7 +46,10 @@ export class MonsterGenerator {
     if (this._hp <= 0) {
       // 击杀了怪物
       this.deadTimes++;
-      this.afterDead?.(this, this.G, {atkRes});
+      this.afterDead?.(this, {atkRes});
+
+      clearTimeout(this.aliveEffectTimer)
+
       this.G.nextTarget();
     }
   }

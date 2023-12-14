@@ -7,15 +7,14 @@ export const JSON_with_bigInt = (data) => {
 };
 
 
-
 export const createProbabilityFunction = ({
-    probability: {
-        default: defaultProbability, max: maxProbability, min: minProbability
-    },
-    reference: {
-        default: defaultReference, max: maxReference, min: minReference
-    },
-}) => {
+                                              probability: {
+                                                  default: defaultProbability, max: maxProbability, min: minProbability
+                                              },
+                                              reference: {
+                                                  default: defaultReference, max: maxReference, min: minReference
+                                              },
+                                          }) => {
     // 计算斜率和截距
     const slope = (maxProbability - minProbability) / (maxReference - minReference);
     const intercept = defaultProbability - slope * defaultReference;
@@ -29,5 +28,19 @@ export const createProbabilityFunction = ({
             // 线性插值
             return slope * value + intercept;
         }
+    }
+}
+
+
+export const CheckActiveEffect = function (effectName) {
+    return function (target, name, descriptor) {
+        console.log('this', this)
+        console.log(target, name, descriptor)
+        const originalMethod = descriptor.value;
+        descriptor.value = function () {
+            console.log(`Calling "${name}" with`, arguments);
+            return originalMethod.apply(this, arguments);
+        };
+        return descriptor;
     }
 }

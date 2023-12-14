@@ -273,6 +273,7 @@ export class SoldierGenerator {
      * 升级攻击力
      * 如果有withOutCost， 则不需要扣除金币，但是依旧会提高单位升级时所需花费
      * @param withoutCost
+     * @param withoutLevelUp
      * @constructor
      */
     UPGRADE_ATK = ({

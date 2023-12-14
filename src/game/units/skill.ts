@@ -130,11 +130,11 @@ export const SKILL_BOOK: {
                         s.forEach(item => {
                             item.UPGRADE_ATK({
                                 withoutCost: true,
-                                withoutLevel: true
+                                withoutLevelUp: true
                             });
                             item.UPGRADE_SPD({
                                 withoutCost: true,
-                                withoutLevel: true
+                                withoutLevelUp: true
                             });
                         });
                     } else {
@@ -156,9 +156,33 @@ export const SKILL_BOOK: {
             intro: '领袖带领队员们一同富裕。提升 攻击力等级相关的金币获取效率，降低攻速等级相关的金币花费',
             type: 'after_upgrade',
             effect: (S: SoldierGenerator) => {
-                G.gold.addMultiples['commonProsperity'] = BigInt(S.atk_level);
-                G.gold.cutMultiples['commonProsperity'] = BigInt(S.spd_level);
+                G.goldCoin.addMultiples({name: 'commonProsperity', value: BigInt(S.atk_level)})
+                G.goldCoin.cutMultiples({name: 'commonProsperity', value: BigInt(S.spd_level)})
             }
         };
     },
+    // 小红包
+    smallRedPacket: (G: G) => {
+        return {
+            id: 'smallRedPacket',
+            unlockLevel: 2,
+            name: '小红包',
+            intro: '每1分钟获取一次红包，金额为除自己外随机一名激活英雄的攻击力。',
+            type: 'global',
+            effect: ({skill, G, S}) => {
+                // G.timers[] = null
+                const fn = () => {
+                    G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
+                        const s = G.getActiveSoldier().filter(item => item.name !== S.name);
+                        const index = Math.floor(Math.random() * s.length);
+                        const atk = s[index].atk;
+                        G.goldCoin.changeSum(atk);
+                        S.SEND_MSG(`+小红包：${atk}`);
+                        fn();
+                    }, 60 * 1000)
+                }
+                fn()
+            }
+        }
+    }
 };

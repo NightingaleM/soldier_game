@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Interactive EChart</title>
+    <!-- 引入ECharts库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        #inputContainer {
+            width: 30%;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            background-color: #f0f0f0;
+        }
+
+        #chartContainer {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .textareaWrapper {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="showButton" onclick="showChart()">展示</button>
+
+    <div id="chartContainer"></div>
+
+    <script>
+
+        // 初始化EChart
+        var myChart = echarts.init(document.getElementById('chartContainer'));
+
+        // 存储每个textarea的颜色
+        var colors = ['#ff5733', '#33ff57', '#5733ff', '#33ffdd', '#dd33ff'];
+        var cfns = [
+            (initialValue) => {
+                return function (level) {
+                    let sum = 0n;
+                    let n = BigInt(level)
+                    for (let i = 0n; i < n; i++) {
+                        sum += i * initialValue + (i ** 3n / (i + n))
+                    }
+                    return initialValue + sum;
+                };
+            }
+        ]
+        var afns = [
+            initValue => {
+                let sequence = [initValue]
+                return function (level) {
+                    if (level <= sequence.length) {
+                        return sequence[level - 1];
+                    }
+                    for (let i = sequence.length + 1; i <= level; i++) {
+                        sequence.push(
+                            ((sequence[i - 3] || initValue)
+                                +
+                                sequence[i - 2]) / 2n
+                            +
+                            // BigInt(
+                            //     (sequence[i - 2] + initValue) / BigInt(Math.abs(Number(initValue) - level) + 1)
+                            // )
+                            // + 
+                            // sequence[i - 2]
+                            // +
+                            BigInt(Math.ceil(Number(initValue) * (i / 27)))
+                        );
+                    }
+                    // 暂时抑制攻击增长
+                    // const ex = 1n + BigInt(Math.floor(level / 50));
+                    return sequence[level - 1]
+                }
+            }
+        ]
+
+        var fns = [
+            [cfns[0], 100, afns[0], 10]
+        ]
+        var atks = [
+            // [, 1, 'line', 'i/3'],
+            // [fns[0], 10, 'line', 'i/11'],
+            // [fns[0], 100, 'line', 'i/3'],
+            // [fns[0], 500, 'line', 'i/3'],
+            // [fns[0], 1000, 'line', 'i/3'],
+            // [fns[0], 10000, 'line', 'i/3'],
+        ]
+        const times = 20
+        function AtkFn(input, base) {
+            let arr = []
+            let n = base ? BigInt(base) : 1n
+            let fn = input(n)
+            for (let i = 1; i < times; i++) {
+                // arr.push(fn(i))
+                let last = arr?.[arr.length - 1] ?? 0n
+                console.log(last, fn(i))
+                arr.push(fn(i) + last)
+            }
+            return arr
+        }
+
+        function CostFn(input, base) {
+            let sum = []
+            let n = base ? BigInt(base) : 1n
+            let fn = input(n)
+            for (let i = 1; i < times; i++) {
+                let last = sum?.[sum.length - 1] ?? 0n
+                console.log(last, fn(i))
+                sum.push(fn(i) + last)
+            }
+            return sum
+        }
+
+        // 展示图表的函数
+        function showChart() {
+            // 保存每个textarea的函数结果
+            var dataSeries = [];
+            // 遍历每个textarea，调用函数 Fn 并保存结果
+            fns.forEach((item, index) => {
+                const [cfn, cb, afn, ab,] = item
+                var cArr = [0, ...CostFn(cfn, cb)];
+                var aArr = [0, ...AtkFn(afn, ab)];
+
+                var color = colors[index % colors.length];
+
+                // 生成EChart数据项
+                var AseriesItem = {
+                    name: 'atk base ' + ab,
+                    type: 'line',
+                    data: aArr.map(item => Number(item)),
+                };
+                var CseriesItem = {
+                    name: 'case base ' + cb,
+                    type: 'bar',
+                    data: cArr.map(item => Number(item)),
+                };
+                dataSeries.push(AseriesItem, CseriesItem);
+            });
+            console.log(dataSeries);
+            // 更新EChart
+            myChart.setOption({
+                tooltip: {
+                    trigger: 'axis'
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '6%',
+                    containLabel: true
+                },
+                legend: {
+                    data: dataSeries.map(item => item.name),
+                },
+                xAxis: {
+                    type: 'category',
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: dataSeries,
+            });
+        }
+
+        setTimeout(() => {
+            showChart()
+        })
+
+    </script>
+</body>
+
+</html>
