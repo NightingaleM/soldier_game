@@ -73,12 +73,6 @@
                                 +
                                 sequence[i - 2]) / 2n
                             +
-                            // BigInt(
-                            //     (sequence[i - 2] + initValue) / BigInt(Math.abs(Number(initValue) - level) + 1)
-                            // )
-                            // + 
-                            // sequence[i - 2]
-                            // +
                             BigInt(Math.ceil(Number(initValue) * (i / 27)))
                         );
                     }

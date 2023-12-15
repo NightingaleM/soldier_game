@@ -167,19 +167,45 @@ export const SKILL_BOOK: {
             id: 'smallRedPacket',
             unlockLevel: 2,
             name: '小红包',
-            intro: '每1分钟获取一次红包，金额为除自己外随机一名激活英雄的攻击力。',
+            intro: '每挂机一分钟有机会偶遇一名已经激活得英雄，获得见面红包，金额为英雄的攻击力。',
             type: 'global',
             effect: ({skill, G, S}) => {
-                // G.timers[] = null
                 const fn = () => {
                     G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
-                        const s = G.getActiveSoldier().filter(item => item.name !== S.name);
-                        const index = Math.floor(Math.random() * s.length);
-                        const atk = s[index].atk;
-                        G.goldCoin.changeSum(atk);
-                        S.SEND_MSG(`+小红包：${atk}`);
+                        if (Math.random() < 0.7) {
+                            const s = G.getActiveSoldier().filter(item => item.name !== S.name);
+                            const index = Math.floor(Math.random() * s.length);
+                            const atk = s[index].atk;
+                            G.goldCoin.changeSum(atk);
+                            S.SEND_MSG(`+小红包：${atk}`);
+                        }
                         fn();
                     }, 60 * 1000)
+                }
+                fn()
+            }
+        }
+    },
+    // 新年红包
+    newYearRedPacket: (G: G) => {
+        return {
+            id: 'newYearRedPacket',
+            unlockLevel: 2,
+            name: '新年红包',
+            intro: '每挂机5分钟，获取新年红包，金额为所有等级比自己高得英雄攻击力的总和。',
+            type: 'global',
+            effect: ({skill, G, S}) => {
+                const fn = () => {
+                    G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
+                        const sum = G.getActiveSoldier()
+                            .filter(item => (item.name !== S.name && item.level() > S.level()))
+                            .reduce((pr, item) => {
+                                return pr + item.atk;
+                            }, 0n)
+                        G.goldCoin.changeSum(sum);
+                        S.SEND_MSG(`+新年红包：${sum}`);
+                        fn();
+                    }, 5 * 60 * 1000)
                 }
                 fn()
             }

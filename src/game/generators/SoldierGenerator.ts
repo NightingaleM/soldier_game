@@ -45,6 +45,7 @@ export class SoldierGenerator {
     cost: any;
 
     msgRef: any = null;
+    activeTimes: number = 0;
 
     constructor(option: SoldierInterface) {
         const {G, name} = option;
@@ -71,11 +72,11 @@ export class SoldierGenerator {
     SAVE_IN_STORAGE() {
         const {
             name, intro, atk, spd, unlockCost, skills,
-            atk_level, spd_level, active
+            atk_level, spd_level, active, activeTimes
         } = this;
         const data = {
-            name, intro, atk, spd, unlockCost, active, atk_level, spd_level,
-            skillId: skills.map(item => item.id)
+            name, intro, atk, spd, unlockCost, active, atk_level,
+            spd_level, activeTimes, skillId: skills.map(item => item.id)
         };
         localStorage.setItem(`${name}`, JSON_with_bigInt(data));
 
@@ -98,7 +99,7 @@ export class SoldierGenerator {
                 // @ts-ignore
                 data.skills.push(SKILL_BOOK[id](this.G));
             });
-            this.INIT(Object.assign(option,data));
+            this.INIT(Object.assign(option, data));
         } else {
             this.INIT(option);
         }
@@ -170,6 +171,7 @@ export class SoldierGenerator {
             return false;
         }
         this.SET_GOLD(this.cost() * -1n);
+        this.activeTimes += 1;
         this.ATK();
     }
 
