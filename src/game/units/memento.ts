@@ -70,5 +70,18 @@ export const Mementos = {
     effect: function ({S, G}: { SoldierGenerator, G }) {
       G.goldCoin.changeSum(BigInt(this.num));
     }
+  },
+
+  // 野兽内丹
+  beast_essence: {
+    name: '野兽内丹',
+    intro: '每次升级攻击力时固定提高攻击力',
+    type: 'before_upgrade_atk',
+    numType: 'BigInt',
+    num: 0n,
+    max: Infinity,
+    effect: function ({S, G}: { SoldierGenerator, G }) {
+      return this.num;
+    }
   }
 };

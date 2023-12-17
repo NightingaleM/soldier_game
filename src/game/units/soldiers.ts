@@ -40,7 +40,7 @@ const atkSequenceGenerator = (initialValue: bigint) => {
 
 // 小孩
 // 获取小孩的历史数据，为了实现每次重生小孩攻击力增长系数的增加
-let childSaveData = localStorage.getItem(`${this.name}`);
+let childSaveData = localStorage.getItem('小孩');
 let childAtkIncrement = atkSequenceGenerator(1n)
 if (childSaveData) {
     const {activeTimes} = JSON.parse(childSaveData);

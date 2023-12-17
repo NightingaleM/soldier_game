@@ -44,3 +44,12 @@ export const CheckActiveEffect = function (effectName) {
         return descriptor;
     }
 }
+
+// 生成大数
+export const createBigInt = ([n,z])=>{
+    let number = `${n}`
+    for(let i=0;i<z;i++){
+        number += '0'
+    }
+    return BigInt(number)
+}
