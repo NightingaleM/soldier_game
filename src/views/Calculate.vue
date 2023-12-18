@@ -6,14 +6,15 @@
     <div class="boss-box">
       <h4>{{ g.target().hp.toLocaleString() }}</h4>
       <div class="boss-img">
-        <img src="" alt="" @click="childAtk">
+<!--        <p class="name">{{g.target().name}}</p>-->
+        <img src="/image/boss/dummy_1.png" alt="" @click="childAtk">
+<!--        <p class="intro">{{g.target().intro}}</p>-->
       </div>
     </div>
   </div>
 
   <div class="content">
-
-    <div class="soldier-box" ref="soldierBoxRef">
+    <div v-if="currentContentType === 'soldier-box'" class="soldier-box">
       <ul>
         <li v-for="(item,key) in g.s_list"
             :class="[{unlock: item.active},{showing: currentShowingSoldierName === item.name}]"
@@ -70,34 +71,60 @@
         </li>
       </ul>
     </div>
+
+    <div v-if="currentContentType === 'memento-box'" class="memento-box">
+      <ul>
+        <li v-for="(item,index) in mementoList">
+          <!--          <img src="" alt="">-->
+          <div>
+            <p>{{ item.name }} * {{ item.num }}</p>
+            <p>{{ item.intro }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div v-if="currentContentType === 'setting-box'" class="setting-box">
+      SETTING
+    </div>
+
+
+  </div>
+
+
+  <div class="foot">
+    <ul>
+      <li @click="setCurrentContentType('soldier-box')"><span>士兵</span></li>
+      <li @click="setCurrentContentType('memento-box')"><span>遗物</span></li>
+      <li @click="setCurrentContentType('setting-box')"><span>设置</span></li>
+    </ul>
   </div>
 </template>
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
-import {getCurrentInstance, onMounted, reactive, ref} from 'vue';
+import {computed, getCurrentInstance, onMounted, reactive, ref} from 'vue';
 import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
 
 const internalInstance = getCurrentInstance();
 
 const g = reactive(new G());
-g.SET_REF_SELF(g);
+const currentShowingSoldierName = ref('');
+const currentContentType = ref('soldier-box');
 
+g.SET_REF_SELF(g);
 const unlockSoldier = (soldier: SoldierGenerator) => {
   g.unlockSoldier(soldier);
-};
 
+};
 const toUploadAtk = (item: any) => {
   item.UPGRADE_ATK();
   internalInstance?.ctx?.$forceUpdate();
-};
 
+};
 const toUploadSpd = (item: any) => {
   item.UPGRADE_SPD();
   internalInstance?.ctx?.$forceUpdate();
 };
-
-const currentShowingSoldierName = ref('');
-
 const setCurrentShowingSoldierName = (name) => {
   if (currentShowingSoldierName.value === name) {
     currentShowingSoldierName.value = '';
@@ -105,11 +132,15 @@ const setCurrentShowingSoldierName = (name) => {
   }
   currentShowingSoldierName.value = name;
 };
-
 const childAtk = () => {
   g.s_list['child'].ATK_IMMEDIATELY();
 };
-
+const mementoList = computed(() => {
+  return Object.values(g.memento_list_unique).filter(item => item.num > 0);
+});
+const setCurrentContentType = (name) => {
+  currentContentType.value = name;
+};
 
 </script>
 <style scoped lang="less">
@@ -117,13 +148,14 @@ const childAtk = () => {
   position: sticky;
   top: 0;
   z-index: 2;
-  background-color: var(--color-background);
+  //background-color: var(--color-background);
+  height: 40rem;
 
   .gold {
     color: gold;
-    text-shadow: 0.3px 0.2px #6e5932;
+    text-shadow: 0.1rem 0.03rem #4f3917;
     text-align: center;
-    font-size: 24px;
+    font-size: 4.8rem;
     font-weight: bolder;
   }
 
@@ -132,14 +164,16 @@ const childAtk = () => {
       color: #ff1515;
       text-shadow: 0.3px 0.2px #6e5932;
       text-align: center;
-      font-size: 24px;
+      font-size: 4.8rem;
       font-weight: bolder;
     }
 
     .boss-img {
+      text-align: center;
+
       img {
-        width: 100%;
-        height: 50rem;
+        display: inline-block;
+        height: 20rem;
         background-color: #38bd68;
         border-radius: .3rem;
       }
@@ -149,12 +183,17 @@ const childAtk = () => {
 
 div.content {
 
+  height: calc(100vh - 40rem - 10rem);
+  overflow-y: auto;
 
   div.soldier-box {
     ul {
       li {
-        background-color: var(--paper-deep-yellow);
-        color: #000;
+        background-color: rgba(0, 0, 0, 0.2);
+        opacity: 0.9;
+        color: rgba(0, 0, 0, 0.8);
+        //background-color: var(--paper-yellow);
+        border: 1px solid var(--paper-dark);
         padding: 1rem;
         margin-bottom: 1rem;
 
@@ -210,7 +249,7 @@ div.content {
             //display: flex;
             //justify-content: space-between;
             //align-items: center;
-            border: 1px solid var(--color-background);
+            border: 1px dashed rgba(0,0,0,0.3);
             padding: 1rem 2rem;
             margin-bottom: 1rem;
 
@@ -247,13 +286,74 @@ div.content {
       }
 
       li.unlock {
-        background-color: var(--paper-yellow);
+        opacity: 1;
+        background-color: transparent;
+        color: #000;
+
+        //background-color: var(--paper-yellow);
       }
 
       li.showing {
         .option-skill-box {
           max-height: 50rem;
         }
+      }
+    }
+  }
+
+  div.memento-box {
+    ul {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+
+      li {
+        padding: .5rem;
+
+        border: 1px dashed var(--paper-dark);
+
+        div {
+          color: #181818;
+        }
+      }
+    }
+  }
+
+}
+
+.foot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: var(--paper-yellow);
+  width: 100%;
+  height: 10rem;
+
+  ul {
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+
+    li {
+      flex: 1;
+
+      background-color: var(--paper-yellow);
+      border-top: 1px solid var(--paper-dark);
+      border-right: 1px solid var(--paper-dark);
+      border-bottom: 1px solid var(--paper-dark);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      span {
+        //padding: 2rem;
+        font-size: 2.6rem;
+        color: #000;
+      }
+
+      &:last-child {
+        border-right: none;
       }
     }
   }

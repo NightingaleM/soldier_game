@@ -31,6 +31,10 @@ export class G {
     before_atk: {},
     after_atk: {},
   };
+
+  // 未分类的遗物列表
+  memento_list_unique = {};
+
   current_boss_index: number = 0; // 第几个boss
   s_list = {};
   // 金币-货币
@@ -38,13 +42,14 @@ export class G {
 
   auto_save_timer = null;
   time: number = 0;
-  timers = {}
+  timers = {};
   // 是否显示关闭游戏的提示
   closeMSG: boolean = false;
 
   constructor() {
 
   }
+
   SET_REF_SELF(G) {
     this.REF_G = G;
     this.INIT_GAME();
@@ -59,7 +64,7 @@ export class G {
     this.LOAD_MEMENTO(); // 加载遗物数据，遗物数据的历史数据加载将在这里完成
     this.LOAD_SAVE(); // 查看并加载历史数据
     this.INIT_SOLDIER(); // 初始化所有士兵，如果有离线收益，还需要等计算完所有离线收益后再开始攻击。
-    this.INIT_GLOBAL_EFFECT()
+    this.INIT_GLOBAL_EFFECT();
   }
 
   INIT_CURRENCY() {
@@ -75,9 +80,9 @@ export class G {
     let saveInfo = localStorage.getItem('sg_lsg_s');
     if (!saveInfo) return;
     saveInfo = JSON.parse(saveInfo);
-    const {time,current_boss_index} = saveInfo;
+    const {time, current_boss_index} = saveInfo;
     this.time = time;
-    this.current_boss_index = current_boss_index
+    this.current_boss_index = current_boss_index;
   }
 
   LOAD_MEMENTO() {
@@ -95,11 +100,13 @@ export class G {
       }
       if (item.type === 'unique') { // 如果是独特遗物则直接放在memento_list第一层
         this.memento_list[key] = item;
+        this.memento_list_unique[key] = item;
       } else {
         if (!this.memento_list[item.type]) {
           this.memento_list[item.type] = {};
         }
         this.memento_list[item.type][key] = item;
+        this.memento_list_unique[key] = item;
       }
     });
   }
@@ -110,6 +117,7 @@ export class G {
       //   如果是独特遗物且获取量没有超过上限，则数量+1
       if (this.memento_list[name].num < Mementos[name].max) {
         this.memento_list[name].num++;
+        this.memento_list_unique[name].num++;
       } else {
         //   TODO: 超出上限，转化成其他货币
       }
@@ -117,6 +125,7 @@ export class G {
       // 如果不是独特遗物，则直接放入数组
       if (this.memento_list[type][name].num < this.memento_list[type][name].max) {
         this.memento_list[type][name].num++;
+        this.memento_list_unique[name].num++;
       } else {
         //   TODO: 超出上限，转化成其他货币
       }
@@ -173,18 +182,19 @@ export class G {
 
   }
 
-  INIT_GLOBAL_EFFECT(){
-    this.getActiveSoldier().forEach(s=>{
-      s.skills.filter(item=>{
-        return (item.type==='global') && (s.level() >= item.unlockLevel)
-      }).forEach(item=>{
-        this.timers[`${s.name}_${item.id}`] = item.effect({skill:item,G:this,S: s})
-      })
-    })
-    this.target().aliveEffect()
+  INIT_GLOBAL_EFFECT() {
+    this.getActiveSoldier().forEach(s => {
+      s.skills.filter(item => {
+        return (item.type === 'global') && (s.level() >= item.unlockLevel);
+      }).forEach(item => {
+        this.timers[`${s.name}_${item.id}`] = item.effect({skill: item, G: this, S: s});
+      });
+    });
+    this.target()?.aliveEffect();
 
 
   }
+
   target() {
     return this.boss_list[this.current_boss_index];
   }

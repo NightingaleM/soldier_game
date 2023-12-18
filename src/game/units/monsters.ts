@@ -1,5 +1,5 @@
 import {MonsterGenerator} from '@/game/generators/MonsterGenerator';
-import {createBigInt as HP} from '@/utils/bigint';
+import {createBigInt as HP} from '@/game/utensil';
 // 教学靶子
 export const Dummy = (G) => (new MonsterGenerator({
   name: 'Dummy',
