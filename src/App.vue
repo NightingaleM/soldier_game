@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import {RouterLink, RouterView} from 'vue-router';
-import HelloWorld from './components/HelloWorld.vue';
+import {versionCompare} from './units'
+import axios from 'axios'
+
+
+// TODO: 获取版本号获取更新
+onMounted(async ()=>{
+  // const latestVersion = await axios('/vapi')
+  // console.log(latestVersion.data)
+
+})
 </script>
 
 <template>

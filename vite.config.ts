@@ -11,5 +11,17 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/vapi': {
+        target: 'http://localhost:3399',
+        changeOrigin: true
+      },
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
+      },
+    }
   }
 })
