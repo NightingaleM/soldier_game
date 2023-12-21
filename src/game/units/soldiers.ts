@@ -1,6 +1,7 @@
 import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
 import {SKILL_BOOK} from '@/game/units/skill';
 import {G} from '@/game/gameGenerator';
+import {createBigInt as BG} from '@/game/utensil';
 
 
 const spdSequenceGenerator = (initialValue) => {
@@ -42,16 +43,18 @@ const atkSequenceGenerator = (initialValue: bigint) => {
 // 获取小孩的历史数据，为了实现每次重生小孩攻击力增长系数的增加
 let childSaveData = localStorage.getItem('小孩');
 let childAtkIncrement = atkSequenceGenerator(1n)
+let childActiveTimes = 0
 if (childSaveData) {
     const {activeTimes} = JSON.parse(childSaveData);
-    childAtkIncrement = atkSequenceGenerator(activeTimes ? BigInt(activeTimes) : 1n)
+    childActiveTimes = activeTimes
+    childAtkIncrement = atkSequenceGenerator(childActiveTimes ? BigInt(childActiveTimes) : 1n)
 }
 export const child = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
     unlockCost: 1n,
     name: '小孩',
     intro: '小孩，活力旺盛的小孩,可以成长的小孩',
-    atk: 1n,
+    atk: childActiveTimes ? BigInt(childActiveTimes) : 1n,
     atk_increment: childAtkIncrement,
     spd: 5000,
     spd_increment: spdSequenceGenerator(50),
@@ -87,11 +90,11 @@ export const luckGirl = (REF_G: G) => (new SoldierGenerator({
 
 export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost: 80000n,
+    unlockCost: BG([1, 4]),
     name: '老师傅',
     intro: '知识丰富的老司机，成长到一定阶段愿意向其他士兵倾囊相授。',
-    atk: 1000n,
-    atk_increment: atkSequenceGenerator(198n),
+    atk: BG([1, 3]),
+    atk_increment: atkSequenceGenerator(999n),
     spd: 2000,
     spd_increment: spdSequenceGenerator(40),
     skills: [SKILL_BOOK['teachOtherAtk'](REF_G)]
@@ -100,10 +103,10 @@ export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
 
 export const fakerJD = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost: 100000n,
+    unlockCost: BG([1, 6]),
     name: 'DJ',
     intro: '天天打碟，烦不烦啊？',
-    atk: 10000n,
+    atk: BG([3, 3]),
     atk_increment: atkSequenceGenerator(1989n),
     spd: 2000,
     spd_increment: spdSequenceGenerator(40),
@@ -112,11 +115,11 @@ export const fakerJD = (REF_G: G) => (new SoldierGenerator({
 
 export const chief = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost: 300000n,
+    unlockCost: BG([1,12]),
     name: '领袖',
     intro: '带我们一起走向胜利。',
-    atk: 100000n,
-    atk_increment: atkSequenceGenerator(80000n),
+    atk: BG([5, 11]),
+    atk_increment: atkSequenceGenerator(BG([7, 11])),
     spd: 10000,
     spd_increment: spdSequenceGenerator(40),
     skills: [SKILL_BOOK['equalityWord'](REF_G), SKILL_BOOK['commonProsperity'](REF_G)]

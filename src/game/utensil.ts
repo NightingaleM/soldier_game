@@ -45,7 +45,11 @@ export const CheckActiveEffect = function (effectName) {
     }
 }
 
-// 生成大数
+/**
+ * 生成大数
+ * @param n 第一位数
+ * @param z 后面跟 z 个 0
+ */
 export const createBigInt = ([n,z])=>{
     let number = `${n}`
     for(let i=0;i<z;i++){
