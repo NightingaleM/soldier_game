@@ -157,7 +157,7 @@ export class SoldierGenerator {
 
 
     level() {
-        return this.spd_level + this.atk_level - 1;
+        return this.spd_level + this.atk_level;
     }
 
     // 真实的花费

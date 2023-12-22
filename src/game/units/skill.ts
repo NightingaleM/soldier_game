@@ -1,6 +1,6 @@
-import type {SKILL, SoldierGenerator} from '@/game/generators/SoldierGenerator';
-import type {G} from '@/game/gameGenerator';
-import {createProbabilityFunction} from '@/game/utensil';
+import type { SKILL, SoldierGenerator } from '@/game/generators/SoldierGenerator';
+import type { G } from '@/game/gameGenerator';
+import { createProbabilityFunction } from '@/game/utensil';
 
 const randomWithAgl = (restrain: number, promote: number, min: number, max: number, norm: number): boolean => {
     const r = Math.random() * 100;
@@ -125,7 +125,7 @@ export const SKILL_BOOK: {
                 if (Math.random() < 0.2 && Math.random() > 0.8) { // 4%
                     let s = G.getActiveSoldier();
                     G.goldCoin.changeSum(G.goldCoin.sum * (BigInt(s.length) - 1n) / BigInt(s.length))
-                    let {atk_level, spd_level} = S;
+                    let { atk_level, spd_level } = S;
                     if (atk_level === spd_level && Math.random() < 0.4) {  // 1.6%
                         s.forEach(item => {
                             item.UPGRADE_ATK({
@@ -156,8 +156,8 @@ export const SKILL_BOOK: {
             intro: '领袖带领队员们一同富裕。提升 攻击力等级相关的金币获取效率，降低攻速等级相关的金币花费',
             type: 'after_upgrade',
             effect: (S: SoldierGenerator) => {
-                G.goldCoin.addMultiples({name: 'commonProsperity', value: BigInt(S.atk_level)})
-                G.goldCoin.cutMultiples({name: 'commonProsperity', value: BigInt(S.spd_level)})
+                G.goldCoin.addMultiples({ name: 'commonProsperity', value: BigInt(S.atk_level) })
+                G.goldCoin.cutMultiples({ name: 'commonProsperity', value: BigInt(S.spd_level) })
             }
         };
     },
@@ -169,7 +169,7 @@ export const SKILL_BOOK: {
             name: '小红包',
             intro: '每挂机一分钟有机会偶遇一名已经激活得英雄，获得见面红包，金额为英雄的攻击力。',
             type: 'global',
-            effect: ({skill, G, S}) => {
+            effect: ({ skill, G, S }) => {
                 const fn = () => {
                     G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
                         if (Math.random() < 0.7) {
@@ -194,7 +194,7 @@ export const SKILL_BOOK: {
             name: '新年红包',
             intro: '每挂机5分钟，获取新年红包，金额为所有等级比自己高得英雄攻击力的总和。',
             type: 'global',
-            effect: ({skill, G, S}) => {
+            effect: ({ skill, G, S }) => {
                 const fn = () => {
                     G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
                         const sum = G.getActiveSoldier()
@@ -208,6 +208,50 @@ export const SKILL_BOOK: {
                     }, 5 * 60 * 1000)
                 }
                 fn()
+            }
+        }
+    },
+    // 好狗
+    strongDog: (G: G) => {
+        return {
+            id: 'strongDog',
+            unlockLevel: 2,
+            name: "好狗",
+            intro: "好强的狗！每次攻击额外造成额外伤害。",
+            type: "before_atk",
+            effect: (S) => {
+                const atk = S.atk * BigInt((S.level() / 50))
+                S.SEND_MSG(`好狗！：${atk}`)
+                return atk
+            }
+        }
+    },
+    // 乖狗
+    goodDog: (G: G) => {
+        return {
+            id: 'goodDog',
+            unlockLevel: 2,
+            name: "乖狗",
+            intro: "乖狗狗，每次攻击获得额外金币。",
+            type: "after_atk",
+            effect: (S, { atkRes }) => {
+                const gold = atkRes * BigInt((S.level() / 150))
+                S.SEND_MSG(`+乖狗：${gold}`)
+                G.goldCoin.changeSum(gold)
+            }
+        }
+    },
+    superFast: (G:G) =>{
+        return {
+            id: 'superFast',
+            unlockLevel: 2,
+            name: "攻速超快",
+            intro: "乖狗狗，每次攻击获得额外金币。",
+            type: "before_upgrade_spd",
+            effect: (S, { atkRes }) => {
+                const gold = atkRes * BigInt((S.level() / 150))
+                S.SEND_MSG(`+乖狗：${gold}`)
+                G.goldCoin.changeSum(gold)
             }
         }
     }

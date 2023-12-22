@@ -87,6 +87,31 @@ export const luckGirl = (REF_G: G) => (new SoldierGenerator({
     skills: [SKILL_BOOK['allWordAtk'](REF_G)]
 }));
 
+export const Dog = (REF_G: G) => (new SoldierGenerator({
+    G: REF_G,
+    unlockCost:  BG([3, 3]),
+    name: '中华田园犬',
+    intro: '忠实可靠。',
+    atk: BG([3, 2]),
+    atk_increment: atkSequenceGenerator(8n),
+    spd: 2500,
+    spd_increment: spdSequenceGenerator(40),
+    skills: [SKILL_BOOK['goodDog'](REF_G),SKILL_BOOK['strongDog'](REF_G)]
+}));
+
+export const Cat = (REF_G: G) => (new SoldierGenerator({
+    G: REF_G,
+    unlockCost:  BG([3, 3]),
+    name: '狸花猫',
+    intro: '又野又强。',
+    atk: BG([3, 2]),
+    atk_increment: atkSequenceGenerator(8n),
+    spd: 2500,
+    spd_increment: spdSequenceGenerator(40),
+    skills: [SKILL_BOOK['goodDog'](REF_G),SKILL_BOOK['strongDog'](REF_G)]
+}));
+
+
 
 export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,

@@ -60,9 +60,9 @@
               </div>
             </template>
             <div v-for="skill in item.skills" :key="skill.name"
-                 :class="['skill',{unlock: item.level() > skill.unlockLevel}]">
+                 :class="['skill',{unlock: item.level() >= skill.unlockLevel}]">
               <p>{{ skill.name }} <span class="unlock-level"
-                                        v-if="item.level() <= skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span>
+                                        v-if="item.level() < skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span>
               </p>
               <p>{{ skill.intro }}</p>
             </div>
