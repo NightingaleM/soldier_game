@@ -38,7 +38,7 @@ export const SKILL_BOOK: {
     teachOtherAtk: (G: G) => {
         return {
             id: 'teachOtherAtk',
-            unlockLevel: 50,
+            unlockLevel: 20,
             name: '老师傅的教导',
             intro: '每次升级攻击，给其他已雇佣士兵额外增长老司机总攻击的百分之一。',
             type: 'after_upgrade_atk',
@@ -75,7 +75,7 @@ export const SKILL_BOOK: {
             id: 'ferment',
             unlockLevel: 5,
             name: '酝酿',
-            intro: '攻击完一次后，需要回味和学习。每次攻击有概率增加5%攻击力，同时增加5%的攻击间隔',
+            intro: '攻击完一次后，需要回味和学习。每次攻击有概率增加2%攻击力，同时增加2%的攻击间隔',
             // TODO: 攻击间隔越长，触发概率越大，攻击间隔超过 100s后，无限接近 90%概率
             type: 'before_atk',
             effect: (S: SoldierGenerator) => {
@@ -88,8 +88,8 @@ export const SKILL_BOOK: {
                     },
                 })
                 if (Math.random() > fn(S.spd)) {
-                    const atk = (S.atk * 5n / 100n);
-                    const spd = parseInt(`${S.spd * 5 / 100}`);
+                    const atk = (S.atk * 2n / 100n);
+                    const spd = parseInt(`${S.spd * 2 / 100}`);
                     S.atk += atk
                     S.spd += spd
                     S.SEND_MSG(`攻击里+${atk} \n 攻击间隔+${spd}`)
@@ -246,13 +246,23 @@ export const SKILL_BOOK: {
             id: 'superFast',
             unlockLevel: 2,
             name: "攻速超快",
-            intro: "乖狗狗，每次攻击获得额外金币。",
+            intro: "每次攻速额外降低0.02s的攻击间隔。",
             type: "before_upgrade_spd",
-            effect: (S, { atkRes }) => {
-                const gold = atkRes * BigInt((S.level() / 150))
-                S.SEND_MSG(`+乖狗：${gold}`)
-                G.goldCoin.changeSum(gold)
+            effect: (S) => {
+                return  20
             }
         }
-    }
+    },
+    ascendantCombo: (G:G) =>{
+        return {
+            id: 'superFast',
+            unlockLevel: 2,
+            name: "攻击强化",
+            intro: "每次攻击都能提高攻击等级相关的攻击力。",
+            type: "after_atk",
+            effect: (S, { atkRes }) => {
+                S.atk += BigInt(S.atk_level)
+            }
+        }
+    },
 };

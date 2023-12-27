@@ -1,12 +1,19 @@
-import {reactive} from 'vue';
-import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
-import {CurrencyGenerator} from '@/game/generators/CurrencyGenerator';
-import {SKILL_BOOK} from '@/game/units/skill';
-import {JSON_with_bigInt} from '@/game/utensil';
-import {chief, child, fakerJD, luckBoy, luckGirl, oldTeacher} from '@/game/units/soldiers';
-import {Mementos} from '@/game/units/memento';
-import {GoldCoin} from '@/game/units/currencys';
-import {Dummy, MouseAndCockroach} from '@/game/units/monsters';
+import { reactive } from 'vue';
+import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
+import { CurrencyGenerator } from '@/game/generators/CurrencyGenerator';
+import { SKILL_BOOK } from '@/game/units/skill';
+import { JSON_with_bigInt } from '@/game/utensil';
+import { chief, child, fakerJD, luckBoy, luckGirl, oldTeacher } from '@/game/units/soldiers';
+import { Mementos } from '@/game/units/memento';
+import { GoldCoin } from '@/game/units/currencys';
+import {
+  Dummy,
+  MouseAndCockroach,
+  MudAndForest,
+  SakuraFluttercamel,
+  MoonshadowSwordLeopard,
+  GoldenGateScorpius,
+} from '@/game/units/monsters';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
@@ -74,13 +81,17 @@ export class G {
   INIT_MONSTER() {
     this.boss_list.push(Dummy(this.REF_G));
     this.boss_list.push(MouseAndCockroach(this.REF_G));
+    this.boss_list.push(MudAndForest(this.REF_G));
+    this.boss_list.push(SakuraFluttercamel(this.REF_G));
+    this.boss_list.push(MoonshadowSwordLeopard(this.REF_G));
+    this.boss_list.push(GoldenGateScorpius(this.REF_G));
   }
 
   LOAD_SAVE() {
     let saveInfo = localStorage.getItem('sg_lsg_s');
     if (!saveInfo) return;
     saveInfo = JSON.parse(saveInfo);
-    const {time, current_boss_index} = saveInfo;
+    const { time, current_boss_index } = saveInfo;
     this.time = time;
     this.current_boss_index = current_boss_index;
   }
@@ -141,7 +152,7 @@ export class G {
       mementos[key] = Mementos[key].num;
     });
 
-    const {current_boss_index, time} = this;
+    const { current_boss_index, time } = this;
     localStorage.setItem('sg_lsg_s', JSON_with_bigInt({
       current_boss_index, time, mementos,
     }));
@@ -187,7 +198,7 @@ export class G {
       s.skills.filter(item => {
         return (item.type === 'global') && (s.level() >= item.unlockLevel);
       }).forEach(item => {
-        this.timers[`${s.name}_${item.id}`] = item.effect({skill: item, G: this, S: s});
+        this.timers[`${s.name}_${item.id}`] = item.effect({ skill: item, G: this, S: s });
       });
     });
     this.target()?.aliveEffect();
