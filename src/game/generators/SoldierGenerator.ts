@@ -1,6 +1,6 @@
-import {SKILL_BOOK} from '@/game/units/skill';
-import {JSON_with_bigInt} from '@/game/utensil';
-import {SKILL, SoldierInterface} from '@/game/game.d.ts';
+import { SKILL_BOOK } from '@/game/units/skill';
+import { JSON_with_bigInt } from '@/game/utensil';
+import { SKILL, SoldierInterface } from '@/game/game.d.ts';
 
 const CostSequenceGenerator = (initialValue) => {
     return function () {
@@ -20,40 +20,49 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
 
 
 export class SoldierGenerator {
-    // 全局游戏实例
-    G;
-    unlockCost: bigint;
-    active: boolean = false;
-    name;
-    intro;
+
+    G; // 全局游戏实例
+    unlockCost: bigint; // 解锁金额
+    originInfo = { // 初始化实例时的原始数据，用来重生时赋值。
+        atk: 0,
+        spd: 100000,
+    }
+    name;  // 名字
+    intro; // 简介
+    skills: SKILL[] = []; // 技能列表
+    atk_increment; // 攻击增长量，是个数组，不同阶段有不同的增长率
+    spd_increment; // 速度增长量，如攻击力增长
+    finally_dmg_list: { t: number, dmg: bigint }[] = []; // 伤害缓存（用于计算DPS）
+    DPS: bigint = 0n; // DPS
+    msgRef: any = null; // 消息展示的 dom 
+    activeTimes: number = 0; // 累计激活次数
+
+    // ---- reload 时需要重置的属性
     atk;
     spd;
-    skills: SKILL[] = [];
-    // 攻击增长量，是个数组，不同阶段有不同的增长率
-    atk_increment;
-    // 速度增长量，如攻击力增长
-    spd_increment;
     atk_level = 1;
     spd_level = 1;
     // 攻击间隔计时器
     atk_timer: any = null;
-    // 伤害缓存（用于计算DPS）
-    finally_dmg_list: { t: number, dmg: bigint }[] = [];
-    // DPS
-    DPS: bigint = 0n;
-    // 花费，根据 unlockCost 和 等级计算。
-    cost: any;
+    cost: any; // 花费，根据 unlockCost 和 等级计算。
+    active: boolean = false;
 
-    msgRef: any = null;
-    activeTimes: number = 0;
+    // ---------------------------
+
+    incrementChange // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
 
     constructor(option: SoldierInterface) {
-        const {G, name} = option;
+        const { G, name, incrementChange } = option;
         this.name = name;
+        this.incrementChange = incrementChange
         this.G = G;
         this.GET_SAVE_FILE(option);
         this.cost = CostSequenceGenerator(this.unlockCost);
         this.CALC_DPS();
+
+        this.originInfo.atk = option.atk
+        this.originInfo.spd = option.spd
+
         setTimeout(() => {
             this.msgRef = document.querySelector(`#${this.name} .msg-box`)
             if (this.msgRef) {
@@ -113,13 +122,14 @@ export class SoldierGenerator {
     INIT(data: object) {
         const {
             name, intro, atk, spd, unlockCost, skills, atk_increment, spd_increment,
-            atk_level, spd_level, atk_timer, active
+            atk_level, spd_level, atk_timer, active, activeTimes
         } = data;
         this.name = name;
         this.intro = intro;
         this.atk = BigInt(atk);
         this.spd = spd;
         this.skills = skills ?? [];
+        this.activeTimes = activeTimes
         this.atk_increment = atk_increment
         this.spd_increment = spd_increment;
         this.unlockCost = BigInt(unlockCost);
@@ -129,6 +139,7 @@ export class SoldierGenerator {
         this.atk_timer = atk_timer ?? null;
 
         this.active = active ?? false;
+        this?.incrementChange()
     }
 
 
@@ -145,7 +156,7 @@ export class SoldierGenerator {
         let gap = time - this.G.time;
         gap = gap > this.G.offline_income.getMaxTime() ? this.G.offline_income.getMaxTime() : gap;
         if (gap > (30 * 1000)) { // 离线至少30秒才开始计算离线收益
-            const {spd} = this;
+            const { spd } = this;
             let times = Math.ceil((gap / spd) * this.G.offline_income.getOfflineIncome()); // 离线收益需要乘以一个系数，TODO：后续提供提高离线收益途径
             console.log(`${this.name} - 计算离线收益中…… - 离线时长 ${gap / (1000 * 60)}分钟 - 预计可攻击${times}次`);
             while (times) {
@@ -172,12 +183,13 @@ export class SoldierGenerator {
         }
         this.SET_GOLD(this.cost() * -1n);
         this.activeTimes += 1;
+        this.active = true;
+        this?.incrementChange()
         this.ATK();
     }
 
 
     ATK() {
-        this.active = true;
         this.ATK_NEXT();
     }
 
@@ -226,11 +238,11 @@ export class SoldierGenerator {
         let res: bigint = 0n;
         if (num > 0n) {
             this.skills.forEach(item => {
-                res += checkActiveSkill(item, 'before_append_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
+                res += checkActiveSkill(item, 'before_append_gold', this.level())?.effect(this, { gold: num }) ?? 0n;
             });
         } else if (num < 0n) {
             this.skills.forEach(item => {
-                res += checkActiveSkill(item, 'before_invest_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
+                res += checkActiveSkill(item, 'before_invest_gold', this.level())?.effect(this, { gold: num }) ?? 0n;
             });
         }
         let n = num + res;
@@ -239,10 +251,10 @@ export class SoldierGenerator {
 
     SET_FinallyDmg(number: bigint) {
         let T = new Date().getTime();
-        this.finally_dmg_list.push({t: T, dmg: number});
+        this.finally_dmg_list.push({ t: T, dmg: number });
         let l = this.finally_dmg_list.length;
         for (let i = l - 1; i >= 0; i--) {
-            const {t, dmg} = this.finally_dmg_list[i];
+            const { t, dmg } = this.finally_dmg_list[i];
             if (T - t > 10000) {
                 this.finally_dmg_list.splice(0, i + 1);
                 break;
@@ -279,10 +291,10 @@ export class SoldierGenerator {
      * @constructor
      */
     UPGRADE_ATK = ({
-                       withoutCost, withoutLevelUp
-                   } = {
-        withoutCost: false, withoutLevelUp: false
-    }) => {
+        withoutCost, withoutLevelUp
+    } = {
+            withoutCost: false, withoutLevelUp: false
+        }) => {
         if (!this.active) {
             throw new Error('no active ,cannot UPGRADE !');
             return;
@@ -298,7 +310,7 @@ export class SoldierGenerator {
         });
         // 升级攻击力前 查看有什么遗物需要触发
         Object.values(this.G.memento_list.before_upgrade_atk).filter(item => item.num > 0).forEach(memento => {
-            n += memento.effect({S: this, G: this.G});
+            n += memento.effect({ S: this, G: this.G });
         });
         this.atk += n;
         if (this.atk_level === 50) {
@@ -322,10 +334,10 @@ export class SoldierGenerator {
      * @constructor
      */
     UPGRADE_SPD = ({
-                       withoutCost, withoutLevelUp
-                   } = {
-        withoutCost: false, withoutLevelUp: false
-    }) => {
+        withoutCost, withoutLevelUp
+    } = {
+            withoutCost: false, withoutLevelUp: false
+        }) => {
         if (!this.active) {
             throw new Error('not active ,cannot UPGRADE !');
             return;
@@ -339,13 +351,13 @@ export class SoldierGenerator {
         });
         // 升级攻击间隔前 查看有什么遗物需要触发
         Object.values(this.G.memento_list.before_upgrade_spd).filter(item => item.num > 0).forEach(memento => {
-            n += memento.effect({S: this, G: this.G});
+            n += memento.effect({ S: this, G: this.G });
         });
         // 看降低后的攻击间隔是否小于 最小允许的攻击间隔，如果小于，则最低给与 允许的最小 的攻击间隔
         const res = this.spd - n;
         let maxSpd = 220;
         // 查看有没有攻击间隔相关遗物，如果有，则提高最大攻击间隔
-        maxSpd += this.G.memento_list.swift_gloves.effect({S: this, G: this.G});
+        maxSpd += this.G.memento_list.swift_gloves.effect({ S: this, G: this.G });
         this.spd = res < maxSpd ? maxSpd : res;
 
 
@@ -366,6 +378,18 @@ export class SoldierGenerator {
         });
     };
 
+    RELOAD() {
+        this.atk = this.originInfo.atk
+        this.spd = this.originInfo.spd
+        this.cost = this.unlockCost
+        this.active = false
+        clearTimeout(this.atk_timer)
+        this.atk_level = 1;
+        this.spd_level = 1;
+
+        // 重置完后立即保存一次数据
+        this.SAVE_IN_STORAGE()
+    }
 
     CALC_DPS() {
         setInterval(() => {

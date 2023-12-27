@@ -1,10 +1,10 @@
-import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
-import {SKILL_BOOK} from '@/game/units/skill';
-import {G} from '@/game/gameGenerator';
-import {createBigInt as BG} from '@/game/utensil';
+import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
+import { SKILL_BOOK } from '@/game/units/skill';
+import { G } from '@/game/gameGenerator';
+import { createBigInt as BG } from '@/game/utensil';
 
 
-const spdSequenceGenerator = (initialValue) => {
+export const spdSequenceGenerator = (initialValue) => {
     let sequence = [initialValue];
     return function (level) {
         if (level <= sequence.length) {
@@ -17,7 +17,7 @@ const spdSequenceGenerator = (initialValue) => {
     };
 };
 
-const atkSequenceGenerator = (initialValue: bigint) => {
+export const atkSequenceGenerator = (initialValue: bigint) => {
     let sequence = [initialValue]
     return function (level) {
         if (level <= sequence.length) {
@@ -40,15 +40,6 @@ const atkSequenceGenerator = (initialValue: bigint) => {
 
 
 // 小孩
-// 获取小孩的历史数据，为了实现每次重生小孩攻击力增长系数的增加
-let childSaveData = localStorage.getItem('小孩');
-let childAtkIncrement = atkSequenceGenerator(1n)
-let childActiveTimes = 0
-if (childSaveData) {
-    const {activeTimes} = JSON.parse(childSaveData);
-    childActiveTimes = activeTimes
-    childAtkIncrement = atkSequenceGenerator(childActiveTimes ? BigInt(childActiveTimes) : 1n)
-}
 export const child = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
     unlockCost: 1n,
@@ -58,8 +49,12 @@ export const child = (REF_G: G) => (new SoldierGenerator({
     atk_increment: childAtkIncrement,
     spd: 5000,
     spd_increment: spdSequenceGenerator(50),
-    // TODO: atk_increment 根据激活次数来提高基础值，如，第二次重生，则基础值为2。
-    skills: [SKILL_BOOK['smallRedPacket'](REF_G), SKILL_BOOK['newYearRedPacket'](REF_G)]
+    skills: [SKILL_BOOK['smallRedPacket'](REF_G), SKILL_BOOK['newYearRedPacket'](REF_G)],
+    incrementChange() {
+        // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
+        const activeTimes = this.activeTimes
+        this.atk_increment = atkSequenceGenerator(activeTimes)
+    }
 }));
 
 export const luckBoy = (REF_G: G) => (new SoldierGenerator({
@@ -89,26 +84,26 @@ export const luckGirl = (REF_G: G) => (new SoldierGenerator({
 
 export const Dog = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost:  BG([3, 4]),
+    unlockCost: BG([3, 4]),
     name: '中华田园犬',
     intro: '忠实可靠。',
     atk: BG([5, 3]),
     atk_increment: atkSequenceGenerator(5333n),
     spd: 5000,
     spd_increment: spdSequenceGenerator(30),
-    skills: [SKILL_BOOK['goodDog'](REF_G),SKILL_BOOK['strongDog'](REF_G)]
+    skills: [SKILL_BOOK['goodDog'](REF_G), SKILL_BOOK['strongDog'](REF_G)]
 }));
 
 export const Cat = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost:  BG([1, 5]),
+    unlockCost: BG([1, 5]),
     name: '狸花猫',
     intro: '又野又强。',
     atk: BG([1, 4]),
     atk_increment: atkSequenceGenerator(12222n),
     spd: 2500,
     spd_increment: spdSequenceGenerator(60),
-    skills: [SKILL_BOOK['superFast'](REF_G),SKILL_BOOK['ascendantCombo'](REF_G)]
+    skills: [SKILL_BOOK['superFast'](REF_G), SKILL_BOOK['ascendantCombo'](REF_G)]
 }));
 
 
@@ -139,7 +134,7 @@ export const fakerJD = (REF_G: G) => (new SoldierGenerator({
 
 export const chief = (REF_G: G) => (new SoldierGenerator({
     G: REF_G,
-    unlockCost: BG([1,15]),
+    unlockCost: BG([1, 15]),
     name: '领袖',
     intro: '带我们一起走向胜利。',
     atk: BG([5, 14]),

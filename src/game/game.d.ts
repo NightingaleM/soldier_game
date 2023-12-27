@@ -18,6 +18,6 @@ export interface SoldierInterface {
   spd_increment: any, // 速度增长，如攻击力增长
   unlockCost: bigint, // 解锁时所需要的花费
   skills?: SKILL[] // 技能列表
-
+  incrementChange?  // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
 }
 

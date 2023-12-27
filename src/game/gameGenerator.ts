@@ -29,6 +29,7 @@ export class G {
       return (2 * 60 * 60 + this.memento_list?.time_ship.effect() ?? 0) * 1000;
     }
   };
+  reloadTimes = 0;
 
   memento_list = {
     before_upgrade_spd: {},
@@ -212,8 +213,26 @@ export class G {
 
   nextTarget() {
     // TODO: 如果是最后一个怪物的话，需要判断是否需要重置
-    this.current_boss_index++;
-    return this.target();
+    if (this.current_boss_index === this.boss_list.length - 1) {
+      this.reloadWord()
+    } else {
+      this.current_boss_index++;
+      return this.target();
+    }
+  }
+
+  reloadWord() {
+    this.reloadTimes++
+    this.current_boss_index = 0
+
+    this.goldCoin = GoldCoin(this.REF_G);
+    
+    this.s_list.forEach(s=>{
+      s.RELOAD()
+    })
+    this.boss_list.forEach(b=>{
+      b.RELOAD()
+    })
   }
 
   unlockSoldier(soldier: SoldierGenerator) {

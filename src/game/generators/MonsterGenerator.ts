@@ -79,4 +79,10 @@ export class MonsterGenerator {
     this.originHp = BigInt(originHp);
 
   }
+
+  RELOAD() {
+    this._hp = this.originHp
+    // 重置完后立即保存一次数据
+    this.SAVE_IN_STORAGE()
+}
 }
