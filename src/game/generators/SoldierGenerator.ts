@@ -139,7 +139,7 @@ export class SoldierGenerator {
         this.atk_timer = atk_timer ?? null;
 
         this.active = active ?? false;
-        this?.incrementChange()
+        this.incrementChange?.()
     }
 
 
@@ -184,7 +184,7 @@ export class SoldierGenerator {
         this.SET_GOLD(this.cost() * -1n);
         this.activeTimes += 1;
         this.active = true;
-        this?.incrementChange()
+        this.incrementChange?.()
         this.ATK();
     }
 
