@@ -45,7 +45,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
     unlockCost: 1n,
     name: '小孩',
     intro: '小孩，活力旺盛的小孩,可以成长的小孩',
-    atk: childActiveTimes ? BigInt(childActiveTimes) : 1n,
+    atk: 1n,
     atk_increment: childAtkIncrement,
     spd: 5000,
     spd_increment: spdSequenceGenerator(50),
@@ -53,7 +53,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
     incrementChange() {
         // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
         const activeTimes = this.activeTimes
-        this.atk_increment = atkSequenceGenerator(activeTimes)
+        this.atk_increment = atkSequenceGenerator(activeTimes || 1n)
     }
 }));
 
