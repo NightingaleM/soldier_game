@@ -46,7 +46,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
     name: '小孩',
     intro: '小孩，活力旺盛的小孩,可以成长的小孩',
     atk: 1n,
-    atk_increment: childAtkIncrement,
+    atk_increment: atkSequenceGenerator(1n),
     spd: 5000,
     spd_increment: spdSequenceGenerator(50),
     skills: [SKILL_BOOK['smallRedPacket'](REF_G), SKILL_BOOK['newYearRedPacket'](REF_G)],
