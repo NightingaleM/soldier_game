@@ -166,7 +166,7 @@ export class G {
   INIT_SOLDIER() {
     //  分三次是为了正确触发一些英雄技能
     Object.keys(Heroes).forEach(key => {
-      this.s_list.push(Heroes[key](this.REF_G))
+      this.s_list[key] = Heroes[key](this.REF_G)
     })
 
     Object.values(this.s_list).forEach(item => {
