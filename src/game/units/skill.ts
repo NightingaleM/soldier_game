@@ -1,19 +1,7 @@
 import type { SKILL, SoldierGenerator } from '@/game/generators/SoldierGenerator';
 import type { G } from '@/game/gameGenerator';
-import { createProbabilityFunction } from '@/game/utensil';
+import { createProbabilityFunction, random, randomWithAgl } from '@/game/utensil';
 
-const randomWithAgl = (restrain: number, promote: number, min: number, max: number, norm: number): boolean => {
-    const r = Math.random() * 100;
-    const short = (promote - restrain) / 16;
-    norm += short;
-    norm = norm > max ? max : norm;
-    norm = norm < min ? min : norm;
-    return r < norm;
-};
-
-const getRandomArbitrary = (min: number = 0, max: number = 1): bigint => {
-    return BigInt(Math.ceil(Math.random() * (max - min) + min));
-};
 
 type SKILL_FN = {
     (n: number): SKILL
@@ -29,7 +17,7 @@ export const SKILL_BOOK: {
             intro: '升级攻击时额外获得0.6~1.6倍攻击。',
             type: 'before_upgrade_atk',
             effect: (S: SoldierGenerator) => {
-                const atk = getRandomArbitrary(6, 16) * S.getCurrentATKIncrement() / 10n
+                const atk = random(6, 16) * S.getCurrentATKIncrement() / 10n
                 S.SEND_MSG(`+额外攻击：${atk}`);
                 return atk
             }
@@ -241,7 +229,7 @@ export const SKILL_BOOK: {
             }
         }
     },
-    superFast: (G:G) =>{
+    superFast: (G: G) => {
         return {
             id: 'superFast',
             unlockLevel: 2,
@@ -249,11 +237,11 @@ export const SKILL_BOOK: {
             intro: "每次攻速额外降低0.02s的攻击间隔。",
             type: "before_upgrade_spd",
             effect: (S) => {
-                return  20
+                return 20
             }
         }
     },
-    ascendantCombo: (G:G) =>{
+    ascendantCombo: (G: G) => {
         return {
             id: 'superFast',
             unlockLevel: 2,

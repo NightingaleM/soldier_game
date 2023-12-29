@@ -1,42 +1,7 @@
 import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
 import { SKILL_BOOK } from '@/game/units/skill';
 import { G } from '@/game/gameGenerator';
-import { createBigInt as BG } from '@/game/utensil';
-
-
-export const spdSequenceGenerator = (initialValue) => {
-    let sequence = [initialValue];
-    return function (level) {
-        if (level <= sequence.length) {
-            return sequence[level - 1];
-        }
-        for (let i = sequence.length + 1; i <= level; i++) {
-            sequence.push(sequence[i - 2] * (1 - 0.01 * (i - 1)));
-        }
-        return sequence[level - 1];
-    };
-};
-
-export const atkSequenceGenerator = (initialValue: bigint) => {
-    let sequence = [initialValue]
-    return function (level) {
-        if (level <= sequence.length) {
-            return sequence[level - 1];
-        }
-        for (let i = sequence.length + 1; i <= level; i++) {
-            sequence.push(
-                ((sequence[i - 3] || initialValue)
-                    +
-                    sequence[i - 2]) / 2n
-                +
-                BigInt(Math.ceil(Number(initialValue) * (i / 27)))
-            );
-        }
-        // 暂时抑制攻击增长
-        // const ex = 1n + BigInt(Math.floor(level / 50));
-        return sequence[level - 1]
-    }
-}
+import { createBigInt as BG, spdSequenceGenerator, atkSequenceGenerator } from '@/game/utensil';
 
 
 // 小孩

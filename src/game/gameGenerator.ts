@@ -3,17 +3,10 @@ import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
 import { CurrencyGenerator } from '@/game/generators/CurrencyGenerator';
 import { SKILL_BOOK } from '@/game/units/skill';
 import { JSON_with_bigInt } from '@/game/utensil';
-import { chief, child, fakerJD, luckBoy, luckGirl, oldTeacher } from '@/game/units/soldiers';
+import * as Heroes from '@/game/units/Heroes';
 import { Mementos } from '@/game/units/memento';
 import { GoldCoin } from '@/game/units/currencys';
-import {
-  Dummy,
-  MouseAndCockroach,
-  MudAndForest,
-  SakuraFluttercamel,
-  MoonshadowSwordLeopard,
-  GoldenGateScorpius,
-} from '@/game/units/monsters';
+import * as Monsters from '@/game/units/monsters';
 
 export class G {
   REF_G; // 被proxy代理过的 G实例， 应为 在vue中，视图是使用的代理过的proxy，如果直接使用为代理的实例，无法及时更新
@@ -80,12 +73,9 @@ export class G {
   }
 
   INIT_MONSTER() {
-    this.boss_list.push(Dummy(this.REF_G));
-    this.boss_list.push(MouseAndCockroach(this.REF_G));
-    this.boss_list.push(MudAndForest(this.REF_G));
-    this.boss_list.push(SakuraFluttercamel(this.REF_G));
-    this.boss_list.push(MoonshadowSwordLeopard(this.REF_G));
-    this.boss_list.push(GoldenGateScorpius(this.REF_G));
+    Object.keys(Monsters).forEach(key => {
+      this.boss_list.push(Monsters[key](this.REF_G))
+    })
   }
 
   LOAD_SAVE() {
@@ -174,17 +164,15 @@ export class G {
   }
 
   INIT_SOLDIER() {
-    this.s_list['child'] = child(this.REF_G);
-    this.s_list['luckBoy'] = luckBoy(this.REF_G);
-    this.s_list['luckGirl'] = luckGirl(this.REF_G);
-    this.s_list['oldTeacher'] = oldTeacher(this.REF_G);
-    this.s_list['fakerJD'] = fakerJD(this.REF_G);
-    this.s_list['chief'] = chief(this.REF_G);
-
+    //  分三次是为了正确触发一些英雄技能
+    Object.keys(Heroes).forEach(key => {
+      this.s_list.push(Heroes[key](this.REF_G))
+    })
 
     Object.values(this.s_list).forEach(item => {
       item.CALC_OFFLINE_INCOME();
     });
+
     Object.values(this.s_list).forEach(item => {
       if (item.active) {
         item.ATK();
@@ -226,11 +214,11 @@ export class G {
     this.current_boss_index = 0
 
     this.goldCoin = GoldCoin(this.REF_G);
-    
-    this.s_list.forEach(s=>{
+
+    this.s_list.forEach(s => {
       s.RELOAD()
     })
-    this.boss_list.forEach(b=>{
+    this.boss_list.forEach(b => {
       b.RELOAD()
     })
   }
