@@ -5,7 +5,7 @@ import { SKILL, SoldierInterface } from '@/game/game.d.ts';
 const CostSequenceGenerator = (initialValue) => {
     return function () {
         let sum = 0n;
-        let n = BigInt(this.level())
+        let n = BigInt(this.level()-2)
         for (let i = 0n; i < n; i++) {
             sum += i * initialValue + (i ** 3n / (i + n))
         }
