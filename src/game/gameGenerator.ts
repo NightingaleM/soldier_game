@@ -73,7 +73,7 @@ export class G {
   }
 
   INIT_MONSTER() {
-    Object.value(Monsters).sort((a, b) => a.originHp - b.originHp).forEach(item => {
+    Object.values(Monsters).sort((a, b) => a.originHp - b.originHp).forEach(item => {
       this.boss_list.push(item(this.REF_G))
     })
   }
