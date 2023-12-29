@@ -24,11 +24,11 @@ export const child = (REF_G: G) => (new HeroGenerator({
 
 export const luckBoy = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: 880n,
+    unlockCost: 999n,
     name: '普通的男人',
     intro: '普通，但是幸运的男人。',
-    atk: 88n,
-    atk_increment: atkSequenceGenerator(88n),
+    atk: 111n,
+    atk_increment: atkSequenceGenerator(122n),
     spd: 5000,
     spd_increment: spdSequenceGenerator(30),
     skills: [SKILL_BOOK['exAtk'](REF_G)]
@@ -40,8 +40,8 @@ export const luckGirl = (REF_G: G) => (new HeroGenerator({
     unlockCost: BG([1, 3]),
     name: '普通的女人',
     intro: '普通，但是幸运的女人。',
-    atk: BG([1, 3]),
-    atk_increment: atkSequenceGenerator(BG([1, 3])),
+    atk: 99n,
+    atk_increment: atkSequenceGenerator(103n),
     spd: 2500,
     spd_increment: spdSequenceGenerator(40),
     skills: [SKILL_BOOK['allWordAtk'](REF_G)]
