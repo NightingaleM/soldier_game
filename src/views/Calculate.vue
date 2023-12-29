@@ -14,11 +14,11 @@
   </div>
 
   <div class="content">
-    <div v-if="currentContentType === 'soldier-box'" class="soldier-box">
+    <div v-if="currentContentType === 'hero-box'" class="hero-box">
       <ul>
         <li v-for="(item,key) in g.s_list"
-            :class="[{unlock: item.active},{showing: currentShowingSoldierName === item.name}]"
-            @click="setCurrentShowingSoldierName(item.name)"
+            :class="[{unlock: item.active},{showing: currentShowingHeroName === item.name}]"
+            @click="setCurrentShowingHeroName(item.name)"
             :id="item.name"
         >
           <div class="infos">
@@ -29,7 +29,7 @@
               <p class="attr">攻击力：{{ item.atk.toLocaleString() }}</p>
               <p class="attr">攻击间隔：{{ (item.spd / 1000).toFixed(3) }}s</p>
               <div class="msg-box"></div>
-              <button class="unlock" v-if="!item.active" @click.stop="unlockSoldier(item)">{{
+              <button class="unlock" v-if="!item.active" @click.stop="unlockHero(item)">{{
                   item.cost().toLocaleString()
                 }} - 解锁
               </button>
@@ -94,7 +94,7 @@
 
   <div class="foot">
     <ul>
-      <li @click="setCurrentContentType('soldier-box')"><span>士兵</span></li>
+      <li @click="setCurrentContentType('hero-box')"><span>士兵</span></li>
       <li @click="setCurrentContentType('memento-box')"><span>遗物</span></li>
       <li @click="setCurrentContentType('setting-box')"><span>设置</span></li>
     </ul>
@@ -103,17 +103,17 @@
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
 import {computed, getCurrentInstance, onMounted, reactive, ref} from 'vue';
-import {SoldierGenerator} from '@/game/generators/SoldierGenerator';
+import {HeroGenerator} from '@/game/generators/HeroGenerator';
 
 const internalInstance = getCurrentInstance();
 
 const g = reactive(new G());
-const currentShowingSoldierName = ref('');
-const currentContentType = ref('soldier-box');
+const currentShowingHeroName = ref('');
+const currentContentType = ref('hero-box');
 
 g.SET_REF_SELF(g);
-const unlockSoldier = (soldier: SoldierGenerator) => {
-  g.unlockSoldier(soldier);
+const unlockHero = (hero: HeroGenerator) => {
+  g.unlockHero(hero);
 
 };
 const toUploadAtk = (item: any) => {
@@ -125,12 +125,12 @@ const toUploadSpd = (item: any) => {
   item.UPGRADE_SPD();
   internalInstance?.ctx?.$forceUpdate();
 };
-const setCurrentShowingSoldierName = (name) => {
-  if (currentShowingSoldierName.value === name) {
-    currentShowingSoldierName.value = '';
+const setCurrentShowingHeroName = (name) => {
+  if (currentShowingHeroName.value === name) {
+    currentShowingHeroName.value = '';
     return;
   }
-  currentShowingSoldierName.value = name;
+  currentShowingHeroName.value = name;
 };
 const childAtk = () => {
   g.s_list['child'].ATK_IMMEDIATELY();
@@ -186,7 +186,7 @@ div.content {
   height: calc(100vh - 40rem - 10rem);
   overflow-y: auto;
 
-  div.soldier-box {
+  div.hero-box {
     ul {
       li {
         background-color: rgba(0, 0, 0, 0.2);

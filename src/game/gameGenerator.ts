@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
+import { HeroGenerator } from '@/game/generators/HeroGenerator';
 import { CurrencyGenerator } from '@/game/generators/CurrencyGenerator';
 import { SKILL_BOOK } from '@/game/units/skill';
 import { JSON_with_bigInt } from '@/game/utensil';
@@ -183,7 +183,7 @@ export class G {
   }
 
   INIT_GLOBAL_EFFECT() {
-    this.getActiveSoldier().forEach(s => {
+    this.getActiveHero().forEach(s => {
       s.skills.filter(item => {
         return (item.type === 'global') && (s.level() >= item.unlockLevel);
       }).forEach(item => {
@@ -223,11 +223,11 @@ export class G {
     })
   }
 
-  unlockSoldier(soldier: SoldierGenerator) {
-    return soldier.UNLOCK();
+  unlockHero(hero: HeroGenerator) {
+    return hero.UNLOCK();
   }
 
-  getActiveSoldier() {
+  getActiveHero() {
     return Object.values(this.s_list).filter(item => item.active);
   }
 }

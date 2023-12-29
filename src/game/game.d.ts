@@ -8,7 +8,7 @@ export interface SKILL {
 }
 
 
-export interface SoldierInterface {
+export interface HeroInterface {
   G: object, // 全局游戏实例
   name: string, // 名称
   intro: string, // 简介

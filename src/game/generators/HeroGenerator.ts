@@ -1,6 +1,6 @@
 import { SKILL_BOOK } from '@/game/units/skill';
 import { JSON_with_bigInt } from '@/game/utensil';
-import { SKILL, SoldierInterface } from '@/game/game.d.ts';
+import { SKILL, HeroInterface } from '@/game/game.d.ts';
 
 const CostSequenceGenerator = (initialValue) => {
     return function () {
@@ -19,7 +19,7 @@ const checkActiveSkill = (item: SKILL, type: string, level: number) => {
 };
 
 
-export class SoldierGenerator {
+export class HeroGenerator {
 
     G; // 全局游戏实例
     unlockCost: bigint; // 解锁金额
@@ -51,7 +51,7 @@ export class SoldierGenerator {
 
     incrementChange // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
 
-    constructor(option: SoldierInterface) {
+    constructor(option: HeroInterface) {
         const { G, name, incrementChange } = option;
         this.name = name;
         this.incrementChange = incrementChange

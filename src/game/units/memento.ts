@@ -1,7 +1,7 @@
 /**
  * @file 游戏中的遗物
  * @description 游戏中的遗物列表，包括遗物的名称、介绍、类型、数量、最大数量、效果等
- * @description 遗物的效果是一个函数，接受一个对象，对象 S 为soldierGenerator 为士兵实例，对象 G 为 gameGenerator 为游戏实例
+ * @description 遗物的效果是一个函数，接受一个对象，对象 S 为heroGenerator 为士兵实例，对象 G 为 gameGenerator 为游戏实例
  * @description type 为遗物的类型，如果为 unique，则说明时独特遗物，在处理效果时将单独处理，其他的则统一在钩子中处理
  */
 export const Mementos = {
@@ -21,7 +21,7 @@ export const Mementos = {
     type: 'before_upgrade_spd',
     num: 0,
     max: 100,
-    effect: function ({S, G}: { SoldierGenerator, G }): number {
+    effect: function ({S, G}: { HeroGenerator, G }): number {
       return S.getCurrentSPDIncrement() * this.num / 100;
     }
   },
@@ -54,7 +54,7 @@ export const Mementos = {
     numType: 'BigInt',
     num: 0n,
     max: Infinity,
-    effect: function ({S, G}: { SoldierGenerator, G }): BigInt {
+    effect: function ({S, G}: { HeroGenerator, G }): BigInt {
       return this.num;
     }
   },
@@ -67,7 +67,7 @@ export const Mementos = {
     numType: 'BigInt',
     num: 0n,
     max: Infinity,
-    effect: function ({S, G}: { SoldierGenerator, G }) {
+    effect: function ({S, G}: { HeroGenerator, G }) {
       G.goldCoin.changeSum(BigInt(this.num));
     }
   },
@@ -80,7 +80,7 @@ export const Mementos = {
     numType: 'BigInt',
     num: 0n,
     max: Infinity,
-    effect: function ({S, G}: { SoldierGenerator, G }) {
+    effect: function ({S, G}: { HeroGenerator, G }) {
       return this.num;
     }
   }

@@ -1,11 +1,11 @@
-import { SoldierGenerator } from '@/game/generators/SoldierGenerator';
+import { HeroGenerator } from '@/game/generators/HeroGenerator';
 import { SKILL_BOOK } from '@/game/units/skill';
 import { G } from '@/game/gameGenerator';
 import { createBigInt as BG, spdSequenceGenerator, atkSequenceGenerator } from '@/game/utensil';
 
 
 // 小孩
-export const child = (REF_G: G) => (new SoldierGenerator({
+export const child = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: 1n,
     name: '小孩',
@@ -22,7 +22,7 @@ export const child = (REF_G: G) => (new SoldierGenerator({
     }
 }));
 
-export const luckBoy = (REF_G: G) => (new SoldierGenerator({
+export const luckBoy = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: 880n,
     name: '普通的男人',
@@ -35,7 +35,7 @@ export const luckBoy = (REF_G: G) => (new SoldierGenerator({
 }));
 
 
-export const luckGirl = (REF_G: G) => (new SoldierGenerator({
+export const luckGirl = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([1, 3]),
     name: '普通的女人',
@@ -47,7 +47,7 @@ export const luckGirl = (REF_G: G) => (new SoldierGenerator({
     skills: [SKILL_BOOK['allWordAtk'](REF_G)]
 }));
 
-export const Dog = (REF_G: G) => (new SoldierGenerator({
+export const Dog = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([3, 4]),
     name: '中华田园犬',
@@ -59,7 +59,7 @@ export const Dog = (REF_G: G) => (new SoldierGenerator({
     skills: [SKILL_BOOK['goodDog'](REF_G), SKILL_BOOK['strongDog'](REF_G)]
 }));
 
-export const Cat = (REF_G: G) => (new SoldierGenerator({
+export const Cat = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([1, 5]),
     name: '狸花猫',
@@ -72,7 +72,7 @@ export const Cat = (REF_G: G) => (new SoldierGenerator({
 }));
 
 
-export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
+export const oldTeacher = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([76, 5]),
     name: '老师傅',
@@ -85,7 +85,7 @@ export const oldTeacher = (REF_G: G) => (new SoldierGenerator({
 }));
 
 
-export const fakerJD = (REF_G: G) => (new SoldierGenerator({
+export const fakerJD = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([9, 7]),
     name: 'DJ',
@@ -97,7 +97,7 @@ export const fakerJD = (REF_G: G) => (new SoldierGenerator({
     skills: [SKILL_BOOK['ferment'](REF_G), SKILL_BOOK['fakeDJ'](REF_G)]
 }));
 
-export const chief = (REF_G: G) => (new SoldierGenerator({
+export const chief = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
     unlockCost: BG([1, 15]),
     name: '领袖',
