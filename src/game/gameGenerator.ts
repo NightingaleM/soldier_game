@@ -166,12 +166,21 @@ export class G {
   INIT_SOLDIER() {
     //  分三次是为了正确触发一些英雄技能
 
-
-    Object.keys(Heroes).sort((a, b) => {
-      return Heroes[a].unlockCost - Heroes[b].unlockCost
-    }).forEach(key => {
-        this.s_list[key] = Heroes[key](this.REF_G)
+    const list = [];
+    Object.keys(Heroes).forEach((key) => {
+      list.push([key, Heroes[key](this.REF_G)]);
+    });
+    list
+      .sort((a, b) => {
+        const unlockCostA = BigInt(a[1].unlockCost);
+        const unlockCostB = BigInt(b[1].unlockCost);
+        if (unlockCostA < unlockCostB) return -1;
+        if (unlockCostA > unlockCostB) return 1;
+        return 0;
       })
+      .forEach(([key, item]) => {
+        this.s_list[key] = item;
+      });
 
     Object.values(this.s_list).forEach(item => {
       item.CALC_OFFLINE_INCOME();
@@ -182,10 +191,7 @@ export class G {
         item.ATK();
       }
     });
-
-
   }
-
   INIT_GLOBAL_EFFECT() {
     this.getActiveHero().forEach(s => {
       s.skills.filter(item => {
