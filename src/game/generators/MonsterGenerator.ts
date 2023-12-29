@@ -2,7 +2,7 @@ export class MonsterGenerator {
   G;
   deadTimes: number = 0;
   private _hp: bigint;
-  private originHp: bigint;
+  originHp: bigint;
   aliveEffect: any;
   afterAttack: any;
   beforeAttack: any;

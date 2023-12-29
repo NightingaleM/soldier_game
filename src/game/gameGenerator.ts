@@ -73,8 +73,8 @@ export class G {
   }
 
   INIT_MONSTER() {
-    Object.keys(Monsters).forEach(key => {
-      this.boss_list.push(Monsters[key](this.REF_G))
+    Object.value(Monsters).sort((a, b) => a.originHp - b.originHp).forEach(item => {
+      this.boss_list.push(item(this.REF_G))
     })
   }
 
@@ -165,9 +165,13 @@ export class G {
 
   INIT_SOLDIER() {
     //  分三次是为了正确触发一些英雄技能
-    Object.keys(Heroes).forEach(key => {
-      this.s_list[key] = Heroes[key](this.REF_G)
-    })
+
+
+    Object.keys(Heroes).sort((a, b) => {
+      return Heroes[a].unlockCost - Heroes[b].unlockCost
+    }).forEach(key => {
+        this.s_list[key] = Heroes[key](this.REF_G)
+      })
 
     Object.values(this.s_list).forEach(item => {
       item.CALC_OFFLINE_INCOME();
