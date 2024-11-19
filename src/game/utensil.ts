@@ -8,13 +8,13 @@ export const JSON_with_bigInt = (data) => {
 
 
 export const createProbabilityFunction = ({
-    probability: {
-        default: defaultProbability, max: maxProbability, min: minProbability
-    },
-    reference: {
-        default: defaultReference, max: maxReference, min: minReference
-    },
-}) => {
+                                              probability: {
+                                                  default: defaultProbability, max: maxProbability, min: minProbability
+                                              },
+                                              reference: {
+                                                  default: defaultReference, max: maxReference, min: minReference
+                                              },
+                                          }) => {
     // 计算斜率和截距
     const slope = (maxProbability - minProbability) / (maxReference - minReference);
     const intercept = defaultProbability - slope * defaultReference;
@@ -99,13 +99,13 @@ export const random = (min: number = 0, max: number = 1): bigint => {
 };
 
 /**
- *  
- * @param restrain 
- * @param promote 
- * @param min 
- * @param max 
- * @param norm 
- * @returns 
+ *
+ * @param restrain
+ * @param promote
+ * @param min
+ * @param max
+ * @param norm
+ * @returns
  */
 export const randomWithAgl = (restrain: number, promote: number, min: number, max: number, norm: number): boolean => {
     const r = Math.random() * 100;
@@ -124,14 +124,15 @@ export const randomWithAgl = (restrain: number, promote: number, min: number, ma
 export class TextAnimation {
     #canvas
     #ctx
-    #fontSize = '16px'
+    #fontSize = 16
     #fontFamily = 'Arial'
     #fillStyle = '#000000'
 
     #offCanvas
     #offCtx
 
-    #animations = []
+    #animations = {}
+
     constructor(canvasDom: HTMLCanvasElement, options: {
         width: number,
         height: number,
@@ -145,61 +146,88 @@ export class TextAnimation {
         this.#offCtx = this.#offCanvas.getContext('2d')
         this.#offCanvas.width = options.width
         this.#offCanvas.height = options.height
-        this.initFont()
+        // this.initFont()
         this.animateText()
     }
 
-    initFont() {
-        this.#ctx.font = `${this.#fontSize}px ${this.#fontFamily}`
-        this.#ctx.fillStyle = `${this.#fillStyle}`
-    }
-    setText(options: {
-        fontSize?: string,
-        fontFamily?: string,
-        fillStyle?: string
-    }) {
-        options.fontSize && (this.#fontSize = options.fontSize)
-        options.fontFamily && (this.#fontFamily = options.fontFamily)
-        options.fillStyle && (this.#fillStyle = options.fillStyle)
-        this.initFont()
-    }
+    // initFont = () => {
+    //     this.#ctx.font = `${this.#fontSize}px ${this.#fontFamily}`
+    //     this.#ctx.fillStyle = `${this.#fillStyle}`
+    //     this.#offCtx.font = `${this.#fontSize}px ${this.#fontFamily}`
+    //     this.#offCtx.fillStyle = `${this.#fillStyle}`
+    // }
+    //
+    // setText(options: {
+    //     fontSize?: string,
+    //     fontFamily?: string,
+    //     fillStyle?: string
+    // }) {
+    //     options.fontSize && (this.#fontSize = options.fontSize)
+    //     options.fontFamily && (this.#fontFamily = options.fontFamily)
+    //     options.fillStyle && (this.#fillStyle = options.fillStyle)
+    //     this.initFont()
+    // }
 
-    #duration = 200
-    drawFloatingText(text: string, position: { x: number, y: number }) {
+    #duration = 1500
+    #yOffset = 30
+    drawFloatingText = (text: string, options?: {
+        x?: number, y?: number,
+        color?: string, fontSize?: number, duration?: number
+    } = {color: '#000000', fontSize: 16}) => {
         const startTime = performance.now();
-        let { x, y } = position
+        let x = options?.x, y = options?.y
         if (!x || !y) {
-            x = Math.random() * this.#canvas.width
-            y = Math.random() * this.#canvas.height
+            x = this.#canvas.width * 1 / 6 + Math.random() * this.#canvas.width * 4 / 7
+            y = this.#canvas.height * 1 / 4 + (Math.random() * this.#canvas.height * 2 / 3)
+            // y = Math.random() * this.#canvas.height
         }
 
         // 将动画添加到数组
-        this.#animations.push({ x, y, text, startTime, duration: this.#duration });
+        this.#animations[`${options.color}-${options.fontSize}`] = this.#animations?.[`${options.color}-${options.fontSize}`] ?? []
+        this.#animations[`${options.color}-${options.fontSize}`].push(
+            {
+                x,
+                y,
+                text,
+                startTime,
+                duration: options?.duration ?? this.#duration,
+                color: options.color,
+                fontSize: options.fontSize,
+            }
+        )
     }
 
 
-    animateText() {
+    animateText = () => {
         // 在离屏画布上执行清除操作
         this.#offCtx.clearRect(0, 0, this.#offCanvas.width, this.#offCanvas.height);
 
         const currentTime = performance.now();
 
-        this.#animations.forEach((anim, index) => {
-            const elapsed = currentTime - anim.startTime;
-            const progress = Math.min(elapsed / anim.duration, 1);
+        Object.keys(this.#animations).forEach(key => {
+            const items = this.#animations[key]
+            const [color, fontSize] = key.split('-')
+            this.#ctx.font = `${fontSize}px ${this.#fontFamily}`
+            this.#ctx.fillStyle = `${color}`
+            this.#offCtx.font = `${fontSize}px ${this.#fontFamily}`
+            this.#offCtx.fillStyle = `${color}`
+            items.forEach((anim, index) => {
+                const elapsed = currentTime - anim.startTime;
+                const progress = Math.min(elapsed / anim.duration, 1);
 
-            const alpha = 1 - progress;
-            const offsetY = -progress * 50;
+                const alpha = 1 - progress;
+                const offsetY = -progress * this.#yOffset;
 
-            // 绘制到离屏画布
-            this.#offCtx.globalAlpha = alpha;
-            this.#offCtx.fillText(anim.text, anim.x, anim.y + offsetY);
-            this.#offCtx.globalAlpha = 1;
+                // 绘制到离屏画布
+                this.#offCtx.globalAlpha = alpha;
+                this.#offCtx.fillText(anim.text, anim.x, anim.y + offsetY);
+                this.#offCtx.globalAlpha = 1;
 
-            if (progress >= 1) {
-                this.#animations.splice(index, 1); // 移除已完成的动画
-            }
-        });
+                if (progress >= 1) {
+                    items.splice(index, 1); // 移除已完成的动画
+                }
+            });
+        })
 
         // 将离屏画布内容绘制到主画布
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);

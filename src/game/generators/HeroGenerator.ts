@@ -1,11 +1,11 @@
-import { SKILL_BOOK } from '@/game/units/skill';
-import { JSON_with_bigInt } from '@/game/utensil';
-import { SKILL, HeroInterface } from '@/game/game.d.ts';
+import {SKILL_BOOK} from '@/game/units/skill';
+import {JSON_with_bigInt} from '@/game/utensil';
+import {SKILL, HeroInterface} from '@/game/game.d.ts';
 
 const CostSequenceGenerator = (initialValue) => {
     return function () {
         let sum = 0n;
-        let n = BigInt(this.level()-2)
+        let n = BigInt(this.level() - 2)
         for (let i = 0n; i < n; i++) {
             sum += i * initialValue + (i ** 3n / (i + n))
         }
@@ -52,7 +52,7 @@ export class HeroGenerator {
     incrementChange // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
 
     constructor(option: HeroInterface) {
-        const { G, name, incrementChange } = option;
+        const {G, name, incrementChange} = option;
         this.name = name;
         this.incrementChange = incrementChange
         this.G = G;
@@ -156,7 +156,7 @@ export class HeroGenerator {
         let gap = time - this.G.time;
         gap = gap > this.G.offline_income.getMaxTime() ? this.G.offline_income.getMaxTime() : gap;
         if (gap > (30 * 1000)) { // 离线至少30秒才开始计算离线收益
-            const { spd } = this;
+            const {spd} = this;
             let times = Math.ceil((gap / spd) * this.G.offline_income.getOfflineIncome()); // 离线收益需要乘以一个系数，TODO：后续提供提高离线收益途径
             console.log(`${this.name} - 计算离线收益中…… - 离线时长 ${gap / (1000 * 60)}分钟 - 预计可攻击${times}次`);
             while (times) {
@@ -210,7 +210,7 @@ export class HeroGenerator {
         // 攻击后由boss爆金币， 技能额外金币由 after_atk 触发
 
         // 显示攻击信息
-        this.SEND_MSG(res)
+        this.SEND_MSG(res, 'attack')
         // 攻击后触发的技能（效果）
         this.skills.forEach((item) => {
             // if (item.type === '' && item.unlockLevel <= this.level()) res += item.effect()
@@ -238,11 +238,11 @@ export class HeroGenerator {
         let res: bigint = 0n;
         if (num > 0n) {
             this.skills.forEach(item => {
-                res += checkActiveSkill(item, 'before_append_gold', this.level())?.effect(this, { gold: num }) ?? 0n;
+                res += checkActiveSkill(item, 'before_append_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
             });
         } else if (num < 0n) {
             this.skills.forEach(item => {
-                res += checkActiveSkill(item, 'before_invest_gold', this.level())?.effect(this, { gold: num }) ?? 0n;
+                res += checkActiveSkill(item, 'before_invest_gold', this.level())?.effect(this, {gold: num}) ?? 0n;
             });
         }
         let n = num + res;
@@ -251,10 +251,10 @@ export class HeroGenerator {
 
     SET_FinallyDmg(number: bigint) {
         let T = new Date().getTime();
-        this.finally_dmg_list.push({ t: T, dmg: number });
+        this.finally_dmg_list.push({t: T, dmg: number});
         let l = this.finally_dmg_list.length;
         for (let i = l - 1; i >= 0; i--) {
-            const { t, dmg } = this.finally_dmg_list[i];
+            const {t, dmg} = this.finally_dmg_list[i];
             if (T - t > 10000) {
                 this.finally_dmg_list.splice(0, i + 1);
                 break;
@@ -291,10 +291,10 @@ export class HeroGenerator {
      * @constructor
      */
     UPGRADE_ATK = ({
-        withoutCost, withoutLevelUp
-    } = {
-            withoutCost: false, withoutLevelUp: false
-        }) => {
+                       withoutCost, withoutLevelUp
+                   } = {
+        withoutCost: false, withoutLevelUp: false
+    }) => {
         if (!this.active) {
             throw new Error('no active ,cannot UPGRADE !');
             return;
@@ -310,7 +310,7 @@ export class HeroGenerator {
         });
         // 升级攻击力前 查看有什么遗物需要触发
         Object.values(this.G.memento_list.before_upgrade_atk).filter(item => item.num > 0).forEach(memento => {
-            n += memento.effect({ S: this, G: this.G });
+            n += memento.effect({S: this, G: this.G});
         });
         this.atk += n;
         if (this.atk_level === 50) {
@@ -325,6 +325,7 @@ export class HeroGenerator {
         this.skills.forEach((item) => {
             checkActiveSkill(item, 'after_upgrade', this.level())?.effect(this);
         });
+        this.G.SAVE_IMMEDIATELY()
     };
 
     /**
@@ -334,10 +335,10 @@ export class HeroGenerator {
      * @constructor
      */
     UPGRADE_SPD = ({
-        withoutCost, withoutLevelUp
-    } = {
-            withoutCost: false, withoutLevelUp: false
-        }) => {
+                       withoutCost, withoutLevelUp
+                   } = {
+        withoutCost: false, withoutLevelUp: false
+    }) => {
         if (!this.active) {
             throw new Error('not active ,cannot UPGRADE !');
             return;
@@ -351,13 +352,13 @@ export class HeroGenerator {
         });
         // 升级攻击间隔前 查看有什么遗物需要触发
         Object.values(this.G.memento_list.before_upgrade_spd).filter(item => item.num > 0).forEach(memento => {
-            n += memento.effect({ S: this, G: this.G });
+            n += memento.effect({S: this, G: this.G});
         });
         // 看降低后的攻击间隔是否小于 最小允许的攻击间隔，如果小于，则最低给与 允许的最小 的攻击间隔
         const res = this.spd - n;
         let maxSpd = 220;
         // 查看有没有攻击间隔相关遗物，如果有，则提高最大攻击间隔
-        maxSpd += this.G.memento_list.swift_gloves.effect({ S: this, G: this.G });
+        maxSpd += this.G.memento_list.swift_gloves.effect({S: this, G: this.G});
         this.spd = res < maxSpd ? maxSpd : res;
 
 
@@ -376,6 +377,8 @@ export class HeroGenerator {
         this.skills.forEach((item) => {
             checkActiveSkill(item, 'after_upgrade', this.level())?.effect(this);
         });
+        this.G.SAVE_IMMEDIATELY()
+
     };
 
     RELOAD() {
@@ -399,7 +402,13 @@ export class HeroGenerator {
         }, 1000);
     }
 
-    SEND_MSG(msg: string) {
+    SEND_MSG(msg: string, type: 'addGold' | 'attack' | 'normal' | {
+        color: string,
+        fontSize: number,
+        duration?: number
+    } = 'normal', options: {
+        color?: string, fontSize?: number, duration?: number
+    } = {}) {
         if (this.G.closeMSG) return;
         // if (!this.msgRef) return;
         // const p = document.createElement('p');
@@ -407,9 +416,36 @@ export class HeroGenerator {
         // p.classList.add('msg');
         // this.msgRef.appendChild(p);
         // ----------------------------
-        if(!this.G.textAnimation) return
-        this.G.textAnimation.drawFloatingText(msg)
+        if (!this.G.textAnimation) return
+        let opt = null
+        if (typeof type === 'string') {
+            opt = MSG_TYPE[type]
+        } else {
+            opt = type
+        }
+        opt.color = options.color ?? opt.color
+        opt.fontSize = options.fontSize ?? opt.fontSize
+        opt.duration = options.duration ?? opt.duration
+        this.G.textAnimation.drawFloatingText(msg, opt)
     }
 }
 
+const MSG_TYPE = {
+    addGold: {
+        color: 'rgb(172,172,12)',
+        fontSize: 24,
+        duration: 2000
+    },
+    attack: {
+        color: 'rgb(255, 0, 0)',
+        fontSize: 16,
+        duration: 1500
+    },
+    normal: {
+        color: 'rgb(0, 0, 0)',
+        fontSize: 16,
+        duration: 1500
+    },
+
+}
 

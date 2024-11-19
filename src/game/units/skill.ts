@@ -187,7 +187,7 @@ export const SKILL_BOOK: {
                             const index = Math.floor(Math.random() * s.length);
                             const atk = s[index].atk;
                             G.goldCoin.changeSum(atk);
-                            S.SEND_MSG(`+小红包：${atk}`);
+                            S.SEND_MSG(`+小红包：${atk}`,'addGold');
                         }
                         fn();
                     }, 60 * 1000);
@@ -217,7 +217,7 @@ export const SKILL_BOOK: {
                                     return pr + item.atk;
                                 }, 0n);
                             G.goldCoin.changeSum(sum);
-                            S.SEND_MSG(`+新年红包：${sum}`);
+                            S.SEND_MSG(`+新年红包：${sum}`, 'addGold');
                             fn();
                         },
                         5 * 60 * 1000,
@@ -237,7 +237,7 @@ export const SKILL_BOOK: {
             type: "before_atk",
             effect: (S) => {
                 const atk = (S.atk * BigInt(S.level())) / 50n;
-                S.SEND_MSG(`好狗！：${atk}`);
+                S.SEND_MSG(`好狗！：${atk}`,'attack', {fontSize: 22});
                 return atk;
             },
         };
@@ -252,7 +252,7 @@ export const SKILL_BOOK: {
             type: "after_atk",
             effect: (S, { atkRes }) => {
                 const gold = (atkRes * BigInt(S.level())) / 150n;
-                S.SEND_MSG(`+乖狗：${gold}`);
+                S.SEND_MSG(`+乖狗：${gold}`, 'addGold');
                 G.goldCoin.changeSum(gold);
             },
         };

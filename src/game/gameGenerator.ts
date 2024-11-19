@@ -168,16 +168,21 @@ export class G {
 
   AUTO_SAVE() {
     this.auto_save_timer = setTimeout(() => {
-      this.SAVE_IN_STORAGE();
-      Object.values(this.s_list).forEach((item) => {
-        item.SAVE_IN_STORAGE();
-      });
-      this.boss_list.forEach((item) => {
-        item.SAVE_IN_STORAGE();
-      });
-      this.goldCoin.SAVE_IN_STORAGE();
+      this.SAVE_IMMEDIATELY()
       this.AUTO_SAVE();
     }, 1000);
+  }
+
+  SAVE_IMMEDIATELY(){
+
+    this.SAVE_IN_STORAGE();
+    Object.values(this.s_list).forEach((item) => {
+      item.SAVE_IN_STORAGE();
+    });
+    this.boss_list.forEach((item) => {
+      item.SAVE_IN_STORAGE();
+    });
+    this.goldCoin.SAVE_IN_STORAGE();
   }
 
   INIT_SOLDIER() {

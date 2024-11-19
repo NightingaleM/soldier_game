@@ -11,6 +11,7 @@
 <!--        <p class="intro">{{g.target().intro}}</p>-->
       </div>
       <canvas id='text-canvas'></canvas>
+      <h3>{{ g.target().name }}</h3>
     </div>
   </div>
 
@@ -23,7 +24,7 @@
             :id="item.name"
         >
           <div class="infos">
-            <img src="" alt="">
+<!--            <img src="" alt="">-->
             <div class="info-box">
 
               <h4>{{ item.name }} <span class="level">{{ item.level() }}级</span></h4>
@@ -114,8 +115,9 @@ const currentContentType = ref('hero-box');
 
 
 g.SET_REF_SELF(g);
-g.SET_TEXT_CANVAS('text-canvas')
-
+onMounted(()=>{
+  g.SET_TEXT_CANVAS('text-canvas')
+})
 
 const unlockHero = (hero: HeroGenerator) => {
   g.unlockHero(hero);
@@ -155,6 +157,7 @@ const setCurrentContentType = (name) => {
   z-index: 2;
   //background-color: var(--color-background);
   height: 40rem;
+  margin-bottom: 2rem;
 
   .gold {
     color: gold;
@@ -168,6 +171,8 @@ const setCurrentContentType = (name) => {
     position: relative;
     #text-canvas {
       position: absolute;
+      width: 100%;
+      height: 100%;
       top: 0;
       left: 0;
       right: 0;
@@ -179,6 +184,11 @@ const setCurrentContentType = (name) => {
       text-align: center;
       font-size: 4.8rem;
       font-weight: bolder;
+    }
+    h3 {
+      text-align: center;
+      font-size: 3.2rem;
+
     }
 
     .boss-img {
@@ -198,7 +208,8 @@ div.content {
 
   height: calc(100vh - 40rem - 10rem);
   overflow-y: auto;
-
+margin-bottom: 3rem;
+  padding-bottom: 3rem;
   div.hero-box {
     ul {
       li {
