@@ -401,11 +401,14 @@ export class HeroGenerator {
 
     SEND_MSG(msg: string) {
         if (this.G.closeMSG) return;
-        if (!this.msgRef) return;
-        const p = document.createElement('p');
-        p.innerText = msg;
-        p.classList.add('msg');
-        this.msgRef.appendChild(p);
+        // if (!this.msgRef) return;
+        // const p = document.createElement('p');
+        // p.innerText = msg;
+        // p.classList.add('msg');
+        // this.msgRef.appendChild(p);
+        // ----------------------------
+        if(!this.G.textAnimation) return
+        this.G.textAnimation.drawFloatingText(msg)
     }
 }
 

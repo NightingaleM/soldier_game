@@ -115,3 +115,97 @@ export const randomWithAgl = (restrain: number, promote: number, min: number, ma
     norm = norm < min ? min : norm;
     return r < norm;
 };
+
+
+/**
+ * 文字动画
+ * canvasDom: HTMLCanvasElement
+ */
+export class TextAnimation {
+    #canvas
+    #ctx
+    #fontSize = '16px'
+    #fontFamily = 'Arial'
+    #fillStyle = '#000000'
+
+    #offCanvas
+    #offCtx
+
+    #animations = []
+    constructor(canvasDom: HTMLCanvasElement, options: {
+        width: number,
+        height: number,
+    }) {
+        this.#canvas = canvasDom
+        this.#ctx = canvasDom.getContext('2d')
+        canvasDom.width = options.width
+        canvasDom.height = options.height
+
+        this.#offCanvas = document.createElement('canvas')
+        this.#offCtx = this.#offCanvas.getContext('2d')
+        this.#offCanvas.width = options.width
+        this.#offCanvas.height = options.height
+        this.initFont()
+        this.animateText()
+    }
+
+    initFont() {
+        this.#ctx.font = `${this.#fontSize}px ${this.#fontFamily}`
+        this.#ctx.fillStyle = `${this.#fillStyle}`
+    }
+    setText(options: {
+        fontSize?: string,
+        fontFamily?: string,
+        fillStyle?: string
+    }) {
+        options.fontSize && (this.#fontSize = options.fontSize)
+        options.fontFamily && (this.#fontFamily = options.fontFamily)
+        options.fillStyle && (this.#fillStyle = options.fillStyle)
+        this.initFont()
+    }
+
+    #duration = 200
+    drawFloatingText(text: string, position: { x: number, y: number }) {
+        const startTime = performance.now();
+        let { x, y } = position
+        if (!x || !y) {
+            x = Math.random() * this.#canvas.width
+            y = Math.random() * this.#canvas.height
+        }
+
+        // 将动画添加到数组
+        this.#animations.push({ x, y, text, startTime, duration: this.#duration });
+    }
+
+
+    animateText() {
+        // 在离屏画布上执行清除操作
+        this.#offCtx.clearRect(0, 0, this.#offCanvas.width, this.#offCanvas.height);
+
+        const currentTime = performance.now();
+
+        this.#animations.forEach((anim, index) => {
+            const elapsed = currentTime - anim.startTime;
+            const progress = Math.min(elapsed / anim.duration, 1);
+
+            const alpha = 1 - progress;
+            const offsetY = -progress * 50;
+
+            // 绘制到离屏画布
+            this.#offCtx.globalAlpha = alpha;
+            this.#offCtx.fillText(anim.text, anim.x, anim.y + offsetY);
+            this.#offCtx.globalAlpha = 1;
+
+            if (progress >= 1) {
+                this.#animations.splice(index, 1); // 移除已完成的动画
+            }
+        });
+
+        // 将离屏画布内容绘制到主画布
+        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+        this.#ctx.drawImage(this.#offCanvas, 0, 0);
+
+        requestAnimationFrame(this.animateText); // 持续调用以更新动画
+    }
+
+}

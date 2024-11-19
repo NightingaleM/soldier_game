@@ -3,13 +3,14 @@
   <div class="head">
     <h4 class="gold">{{ g.goldCoin.sum.toLocaleString() }}</h4>
     <!--    <span>x {{ g.gold.getAddMultiple() }}%</span>    -->
-    <div class="boss-box">
+    <div class="boss-box" @click="childAtk">
       <h4>{{ g.target().hp.toLocaleString() }}</h4>
       <div class="boss-img">
 <!--        <p class="name">{{g.target().name}}</p>-->
-        <img src="/image/boss/dummy_1.png" alt="" @click="childAtk">
+        <img src="/image/boss/dummy_1.png" alt="" >
 <!--        <p class="intro">{{g.target().intro}}</p>-->
       </div>
+      <canvas id='text-canvas'></canvas>
     </div>
   </div>
 
@@ -111,7 +112,11 @@ const g = reactive(new G());
 const currentShowingHeroName = ref('');
 const currentContentType = ref('hero-box');
 
+
 g.SET_REF_SELF(g);
+g.SET_TEXT_CANVAS('text-canvas')
+
+
 const unlockHero = (hero: HeroGenerator) => {
   g.unlockHero(hero);
 
@@ -160,6 +165,14 @@ const setCurrentContentType = (name) => {
   }
 
   div.boss-box {
+    position: relative;
+    #text-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
     h4 {
       color: #ff1515;
       text-shadow: 0.3px 0.2px #6e5932;

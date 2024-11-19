@@ -2,7 +2,7 @@ import { reactive } from "vue";
 import { HeroGenerator } from "@/game/generators/HeroGenerator";
 import { CurrencyGenerator } from "@/game/generators/CurrencyGenerator";
 import { SKILL_BOOK } from "@/game/units/skill";
-import { JSON_with_bigInt } from "@/game/utensil";
+import { JSON_with_bigInt, TextAnimation } from "@/game/utensil";
 import * as Heroes from "@/game/units/Heroes";
 import { Mementos } from "@/game/units/memento";
 import { GoldCoin } from "@/game/units/currencys";
@@ -55,6 +55,15 @@ export class G {
     setTimeout(() => {
       this.AUTO_SAVE();
     }, 100);
+  }
+
+  textAnimation: TextAnimation
+  SET_TEXT_CANVAS(id: string) {
+    const dom: HTMLCanvasElement = document.querySelector(`#${id}`)
+    if (!dom) return
+    const width = dom.clientWidth
+    const height = dom.clientHeight
+    this.textAnimation = new TextAnimation(dom, { width, height })
   }
 
   INIT_GAME() {
