@@ -170,7 +170,7 @@ export class TextAnimation {
 
     #duration = 1500
     #yOffset = 30
-    drawFloatingText = (text: string, options?: {
+    drawFloatingText = (text: string, options: {
         x?: number, y?: number,
         color?: string, fontSize?: number, duration?: number
     } = {color: '#000000', fontSize: 16}) => {

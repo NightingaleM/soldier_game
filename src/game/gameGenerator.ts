@@ -24,7 +24,7 @@ export class G {
   };
   reloadTimes = 0;
 
-  memento_list = {
+  memento_list: { [key: string]: { [key: string]: any, effect?: any } } = {
     before_upgrade_spd: {},
     before_upgrade_atk: {},
     before_append_gold: {},
@@ -173,7 +173,7 @@ export class G {
     }, 1000);
   }
 
-  SAVE_IMMEDIATELY(){
+  SAVE_IMMEDIATELY() {
 
     this.SAVE_IN_STORAGE();
     Object.values(this.s_list).forEach((item) => {
