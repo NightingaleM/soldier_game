@@ -1,13 +1,13 @@
-import { HeroGenerator } from '@/game/generators/HeroGenerator';
+// import { HeroGenerator } from '@/game/generators/HeroGenerator';
 import { SKILL_BOOK } from '@/game/units/skill';
 import { G } from '@/game/gameGenerator';
 import { createBigInt as BG, spdSequenceGenerator, atkSequenceGenerator } from '@/game/utensil';
-
+import {HGenerator as HeroGenerator} from "@/game/generators/H";
 
 // 小孩
 export const child = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: 1n,
+    cost: 1n,
     name: '小孩',
     intro: '小孩，活力旺盛的小孩,可以成长的小孩',
     atk: 1n,
@@ -18,13 +18,13 @@ export const child = (REF_G: G) => (new HeroGenerator({
     incrementChange() {
         // 修改 atk\spd 的成长函数，在 UNLOCK、INIT 阶段调用
         const activeTimes = this.activeTimes
-        this.atk_increment = atkSequenceGenerator(activeTimes || 1n)
+        this.atk_increment = atkSequenceGenerator(BigInt(activeTimes) || 1n)
     }
 }));
 
 export const luckBoy = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: 999n,
+    cost: 999n,
     name: '普通的男人',
     intro: '普通，但是幸运的男人。',
     atk: 111n,
@@ -37,7 +37,7 @@ export const luckBoy = (REF_G: G) => (new HeroGenerator({
 
 export const luckGirl = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([1, 3]),
+    cost: BG([1, 3]),
     name: '普通的女人',
     intro: '普通，但是幸运的女人。',
     atk: 99n,
@@ -49,7 +49,7 @@ export const luckGirl = (REF_G: G) => (new HeroGenerator({
 
 export const Dog = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([3, 4]),
+    cost: BG([3, 4]),
     name: '中华田园犬',
     intro: '忠实可靠。',
     atk: BG([5, 3]),
@@ -61,7 +61,7 @@ export const Dog = (REF_G: G) => (new HeroGenerator({
 
 export const Cat = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([1, 5]),
+    cost: BG([1, 5]),
     name: '狸花猫',
     intro: '又野又强。',
     atk: BG([1, 4]),
@@ -74,7 +74,7 @@ export const Cat = (REF_G: G) => (new HeroGenerator({
 
 export const oldTeacher = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([76, 5]),
+    cost: BG([76, 5]),
     name: '老师傅',
     intro: '知识丰富的老司机，成长到一定阶段愿意向其他士兵倾囊相授。',
     atk: BG([6, 5]),
@@ -87,7 +87,7 @@ export const oldTeacher = (REF_G: G) => (new HeroGenerator({
 
 export const fakerJD = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([9, 7]),
+    cost: BG([9, 7]),
     name: 'DJ',
     intro: '天天打碟，烦不烦啊？',
     atk: BG([1, 6]),
@@ -99,7 +99,7 @@ export const fakerJD = (REF_G: G) => (new HeroGenerator({
 
 export const chief = (REF_G: G) => (new HeroGenerator({
     G: REF_G,
-    unlockCost: BG([1, 15]),
+    cost: BG([1, 15]),
     name: '领袖',
     intro: '带我们一起走向胜利。',
     atk: BG([5, 14]),

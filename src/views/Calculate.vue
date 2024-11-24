@@ -27,12 +27,12 @@
 <!--            <img src="" alt="">-->
             <div class="info-box">
 
-              <h4>{{ item.name }} <span class="level">{{ item.level() }}级</span></h4>
+              <h4>{{ item.name }} <span class="level">{{ item.level }}级</span></h4>
               <p class="attr">攻击力：{{ item.atk.toLocaleString() }}</p>
               <p class="attr">攻击间隔：{{ (item.spd / 1000).toFixed(3) }}s</p>
               <div class="msg-box"></div>
               <button class="unlock" v-if="!item.active" @click.stop="unlockHero(item)">{{
-                  item.cost().toLocaleString()
+                  item.realCost.toLocaleString()
                 }} - 解锁
               </button>
             </div>
@@ -46,8 +46,8 @@
                   <span>升级攻击力 + {{ item.getCurrentATKIncrement().toLocaleString() }} </span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ item.realCost().toLocaleString() }}
-                  <span>{{ item.cost().toLocaleString() }}</span>
+                  升级花费：{{ item.realCost.toLocaleString() }}
+                  <span>{{ item.originCost.toLocaleString() }}</span>
                 </div>
               </div>
               <div class="attr-option" @click.stop="toUploadSpd(item)">
@@ -56,15 +56,15 @@
                   <span>升级攻击间隔 - {{ (item.getCurrentSPDIncrement() / 1000).toFixed(5) }} s</span>
                 </p>
                 <div class="cost">
-                  升级花费：{{ item.realCost().toLocaleString() }}
-                  <span>{{ item.cost().toLocaleString() }}</span>
+                  升级花费：{{ item.realCost.toLocaleString() }}
+                  <span>{{ item.originCost.toLocaleString() }}</span>
                 </div>
               </div>
             </template>
             <div v-for="skill in item.skills" :key="skill.name"
-                 :class="['skill',{unlock: item.level() >= skill.unlockLevel}]">
+                 :class="['skill',{unlock: item.level >= skill.unlockLevel}]">
               <p>{{ skill.name }} <span class="unlock-level"
-                                        v-if="item.level() < skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span>
+                                        v-if="item.level < skill.unlockLevel">{{ skill.unlockLevel }}级解锁</span>
               </p>
               <p>{{ skill.intro }}</p>
             </div>
@@ -104,15 +104,13 @@
 </template>
 <script setup lang="ts">
 import {G} from '@/game/gameGenerator';
-import {computed, getCurrentInstance, onMounted, reactive, ref} from 'vue';
+import {computed, getCurrentInstance, markRaw, onMounted, reactive, ref} from 'vue';
 import {HeroGenerator} from '@/game/generators/HeroGenerator';
 
 const internalInstance = getCurrentInstance();
-
-const g = reactive(new G());
+const g = reactive(new G())
 const currentShowingHeroName = ref('');
 const currentContentType = ref('hero-box');
-
 
 g.SET_REF_SELF(g);
 onMounted(()=>{

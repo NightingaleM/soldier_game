@@ -1,5 +1,6 @@
 import { reactive } from "vue";
 import { HeroGenerator } from "@/game/generators/HeroGenerator";
+import {HGenerator} from '@/game/generators/H'
 import { CurrencyGenerator } from "@/game/generators/CurrencyGenerator";
 import { SKILL_BOOK } from "@/game/units/skill";
 import { JSON_with_bigInt, TextAnimation } from "@/game/utensil";
@@ -185,6 +186,22 @@ export class G {
     this.goldCoin.SAVE_IN_STORAGE();
   }
 
+
+  stopAtcAction = false;
+  beginAtcActionTimestamp = 0
+  atcAction(){
+      this.beginAtcActionTimestamp = new Date().getTime()
+    const fn = (t:number) =>{
+      // console.log(t)
+      this.getActiveHero.forEach(item=>item.ATK(t + this.beginAtcActionTimestamp))
+      if(!this.stopAtcAction) requestAnimationFrame(fn)
+    }
+
+    fn(0)
+  }
+
+
+
   INIT_SOLDIER() {
     //  分三次是为了正确触发一些英雄技能
 
@@ -194,8 +211,8 @@ export class G {
     });
     list
       .sort((a, b) => {
-        const unlockCostA = BigInt(a[1].unlockCost);
-        const unlockCostB = BigInt(b[1].unlockCost);
+        const unlockCostA = BigInt(a[1].originInfo.cost);
+        const unlockCostB = BigInt(b[1].originInfo.cost);
         if (unlockCostA < unlockCostB) return -1;
         if (unlockCostA > unlockCostB) return 1;
         return 0;
@@ -204,21 +221,24 @@ export class G {
         this.s_list[key] = item;
       });
 
-    Object.values(this.s_list).forEach((item) => {
-      item.CALC_OFFLINE_INCOME();
-    });
-
-    Object.values(this.s_list).forEach((item) => {
-      if (item.active) {
-        item.ATK();
-      }
-    });
+    setTimeout(()=>{
+        this.atcAction()
+    }, 1000)
+    // Object.values(this.s_list).forEach((item) => {
+    //   item.CALC_OFFLINE_INCOME();
+    // });
+    //
+    // Object.values(this.s_list).forEach((item) => {
+    //   if (item.active) {
+    //     item.ATK();
+    //   }
+    // });
   }
   INIT_GLOBAL_EFFECT() {
-    this.getActiveHero().forEach((s) => {
+    this.getActiveHero.forEach((s) => {
       s.skills
         .filter((item) => {
-          return item.type === "global" && s.level() >= item.unlockLevel;
+          return item.type === "global" && s.level >= item.unlockLevel;
         })
         .forEach((item) => {
           this.timers[`${s.name}_${item.id}`] = item.effect({
@@ -259,11 +279,11 @@ export class G {
     });
   }
 
-  unlockHero(hero: HeroGenerator) {
+  unlockHero(hero: HGenerator) {
     return hero.UNLOCK();
   }
 
-  getActiveHero() {
+  get getActiveHero() {
     return Object.values(this.s_list).filter((item) => item.active);
   }
 }

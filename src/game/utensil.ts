@@ -74,7 +74,7 @@ export const spdSequenceGenerator = (initialValue) => {
 
 export const atkSequenceGenerator = (initialValue: bigint) => {
     let sequence = [initialValue]
-    return function (level) {
+    return function (level:number) {
         if (level <= sequence.length) {
             return sequence[level - 1];
         }

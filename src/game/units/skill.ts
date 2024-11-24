@@ -34,7 +34,7 @@ export const SKILL_BOOK: {
             intro: "每次升级攻击，给其他已雇佣士兵额外增长老司机总攻击的百分之一。",
             type: "after_upgrade_atk",
             effect: (S: HeroGenerator) => {
-                G.getActiveHero().forEach((item) => {
+                G.getActiveHero.forEach((item) => {
                     const atk = S.atk / 100n;
                     item.atk += atk;
                     item.SEND_MSG(`+老师傅的教导：${atk}`);
@@ -53,7 +53,7 @@ export const SKILL_BOOK: {
             effect: (S: HeroGenerator) => {
                 let a = randomWithAgl(S.spd_level, S.atk_level, 1, 15, 3);
                 if (a) {
-                    return G.getActiveHero().reduce((pr, item) => {
+                    return G.getActiveHero.reduce((pr, item) => {
                         return pr + item.atk;
                     }, 0n);
                 }
@@ -121,7 +121,7 @@ export const SKILL_BOOK: {
             effect: (S: HeroGenerator) => {
                 if (Math.random() < 0.2 && Math.random() > 0.8) {
                     // 4%
-                    let s = G.getActiveHero();
+                    let s = G.getActiveHero;
                     G.goldCoin.changeSum(
                         (G.goldCoin.sum * (BigInt(s.length) - 1n)) / BigInt(s.length),
                     );
@@ -181,7 +181,7 @@ export const SKILL_BOOK: {
                 const fn = () => {
                     G.timers[`${S.name}_${skill.id}`] = setTimeout(() => {
                         if (Math.random() < 0.7) {
-                            const s = G.getActiveHero().filter(
+                            const s = G.getActiveHero.filter(
                                 (item) => item.name !== S.name,
                             );
                             const index = Math.floor(Math.random() * s.length);
@@ -209,7 +209,7 @@ export const SKILL_BOOK: {
                 const fn = () => {
                     G.timers[`${S.name}_${skill.id}`] = setTimeout(
                         () => {
-                            const sum = G.getActiveHero()
+                            const sum = G.getActiveHero
                                 .filter(
                                     (item) => item.name !== S.name && item.level() > S.level(),
                                 )
